@@ -1,3 +1,8 @@
+<?php
+require_once __DIR__ . '/config/auth.php';
+$flash_success = get_flash_message('success');
+$flash_error = get_flash_message('error');
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -28,27 +33,26 @@
   </head>
   <body>
     
-	  <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
-	    <div class="container">
-	      <a class="navbar-brand" href="index.php">Car<span>Book</span></a>
-	      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
-	        <span class="oi oi-menu"></span> Menu
-	      </button>
+    <?php include __DIR__ . '/includes/navbar.php'; ?>
 
-	      <div class="collapse navbar-collapse" id="ftco-nav">
-	        <ul class="navbar-nav ml-auto">
-	          <li class="nav-item active"><a href="index.php" class="nav-link">Home</a></li>
-	          <li class="nav-item"><a href="about.php" class="nav-link">About</a></li>
-	          <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
-	          <li class="nav-item"><a href="pricing.php" class="nav-link">Pricing</a></li>
-	          <li class="nav-item"><a href="car.php" class="nav-link">Cars</a></li>
-	          <li class="nav-item"><a href="blog.php" class="nav-link">Blog</a></li>
-	          <li class="nav-item"><a href="contact.php" class="nav-link">Contact</a></li>
-	        </ul>
-	      </div>
-	    </div>
-	  </nav>
-    <!-- END nav -->
+    <?php if ($flash_success): ?>
+      <div class="alert alert-success alert-dismissible fade show text-center mb-0" role="alert" style="border-radius:0;">
+        <strong><i class="ion-ios-checkmark-circle"></i></strong> <?php echo htmlspecialchars($flash_success); ?>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    <?php endif; ?>
+
+    <?php if ($flash_error): ?>
+      <div class="alert alert-danger alert-dismissible fade show text-center mb-0" role="alert" style="border-radius:0;">
+        <strong><i class="ion-ios-close-circle"></i></strong> <?php echo htmlspecialchars($flash_error); ?>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    <?php endif; ?>
+
     
     <div class="hero-wrap ftco-degree-bg" style="background-image: url('images/bg_1.jpg');" data-stellar-background-ratio="0.5">
       <div class="overlay"></div>

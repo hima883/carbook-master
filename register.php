@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/config/auth.php';
 
-// Redirect if already logged in
+// If already logged in, redirect to homepage
 if (is_logged_in()) {
     header("Location: index.php");
     exit();
@@ -9,28 +9,46 @@ if (is_logged_in()) {
 
 $error_msg = get_flash_message('error');
 $success_msg = get_flash_message('success');
+
+$name = '';
 $email = '';
+$phone = '';
+$role = 'renter';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = $_POST['name'] ?? '';
     $email = $_POST['email'] ?? '';
+    $phone = $_POST['phone'] ?? '';
+    $role = $_POST['role'] ?? 'renter';
     $password = $_POST['password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
 
-    $result = login_user($conn, $email, $password);
-    if ($result['success']) {
-        $_SESSION['flash_success'] = "مرحباً بعودتك، " . htmlspecialchars($_SESSION['user_name']) . "!";
-        
-        $redirect = $_GET['redirect'] ?? 'index.php';
-        header("Location: " . $redirect);
-        exit();
+    if ($password !== $confirm_password) {
+        $error_msg = "كلمتا المرور غير متطابقتين.";
     } else {
-        $error_msg = $result['message'];
+        $result = register_user($conn, $name, $email, $password, $phone, $role);
+        if ($result['success']) {
+            // Auto login after successful registration
+            $login_res = login_user($conn, $email, $password);
+            if ($login_res['success']) {
+                $_SESSION['flash_success'] = "مرحباً بك " . htmlspecialchars($name) . "! تم إنشاء حسابك وتسجيل الدخول بنجاح.";
+                header("Location: index.php");
+                exit();
+            } else {
+                $_SESSION['flash_success'] = $result['message'];
+                header("Location: login.php");
+                exit();
+            }
+        } else {
+            $error_msg = $result['message'];
+        }
     }
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Login - Carbook Car Rental</title>
+    <title>Register - Carbook Car Rental</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
@@ -48,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/flaticon.css">
     <link rel="stylesheet" href="css/icomoon.css">
     <link rel="stylesheet" href="css/style.css">
-
+    
     <style>
       .auth-card {
         background: #ffffff;
@@ -91,6 +109,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background: #0069d9;
         border-color: #0062cc;
       }
+      .role-select {
+        height: 48px !important;
+      }
     </style>
   </head>
   <body>
@@ -110,8 +131,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	          <li class="nav-item"><a href="pricing.php" class="nav-link">Pricing</a></li>
 	          <li class="nav-item"><a href="car.php" class="nav-link">Cars</a></li>
 	          <li class="nav-item"><a href="contact.php" class="nav-link">Contact</a></li>
-            <li class="nav-item active"><a href="login.php" class="nav-link">Login</a></li>
-	          <li class="nav-item"><a href="register.php" class="nav-link">Register</a></li>
+            <li class="nav-item"><a href="login.php" class="nav-link">Login</a></li>
+	          <li class="nav-item active"><a href="register.php" class="nav-link">Register</a></li>
 	        </ul>
 	      </div>
 	    </div>
@@ -123,8 +144,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="container">
         <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-start">
           <div class="col-md-9 ftco-animate pb-5">
-          	<p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>Login <i class="ion-ios-arrow-forward"></i></span></p>
-            <h1 class="mb-3 bread">Log In To Your Account</h1>
+          	<p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>Register <i class="ion-ios-arrow-forward"></i></span></p>
+            <h1 class="mb-3 bread">Create An Account</h1>
           </div>
         </div>
       </div>
@@ -133,9 +154,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <section class="ftco-section bg-light">
       <div class="container">
         <div class="row justify-content-center">
-          <div class="col-md-7 col-lg-5">
+          <div class="col-md-7 col-lg-6">
             <div class="auth-card">
-              <h2 class="text-center">Welcome Back</h2>
+              <h2 class="text-center">Sign Up</h2>
 
               <?php if (!empty($error_msg)): ?>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -155,23 +176,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
               <?php endif; ?>
 
-              <form action="login.php<?php echo isset($_GET['redirect']) ? '?redirect=' . urlencode($_GET['redirect']) : ''; ?>" method="POST" class="request-form">
+              <form action="register.php" method="POST" class="request-form">
+                <div class="form-group">
+                  <label for="name">Full Name / الاسم بالكامل *</label>
+                  <input type="text" name="name" id="name" class="form-control" placeholder="John Doe" value="<?php echo htmlspecialchars($name); ?>" required>
+                </div>
+
                 <div class="form-group">
                   <label for="email">Email Address / البريد الإلكتروني *</label>
                   <input type="email" name="email" id="email" class="form-control" placeholder="user@example.com" value="<?php echo htmlspecialchars($email); ?>" required>
                 </div>
 
                 <div class="form-group">
+                  <label for="phone">Phone Number / رقم الهاتف</label>
+                  <input type="text" name="phone" id="phone" class="form-control" placeholder="01012345678" value="<?php echo htmlspecialchars($phone); ?>">
+                </div>
+
+                <div class="form-group">
+                  <label for="role">Account Type / نوع الحساب *</label>
+                  <select name="role" id="role" class="form-control role-select" required>
+                    <option value="renter" <?php echo ($role === 'renter') ? 'selected' : ''; ?>>Renter (مستأجر سيارات)</option>
+                    <option value="owner" <?php echo ($role === 'owner') ? 'selected' : ''; ?>>Car Owner (صاحب سيارة)</option>
+                    <option value="both" <?php echo ($role === 'both') ? 'selected' : ''; ?>>Both (مستأجر ومالك)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
                   <label for="password">Password / كلمة المرور *</label>
-                  <input type="password" name="password" id="password" class="form-control" placeholder="******" required>
+                  <input type="password" name="password" id="password" class="form-control" placeholder="****** (6+ characters)" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="confirm_password">Confirm Password / تأكيد كلمة المرور *</label>
+                  <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="******" required>
                 </div>
 
                 <div class="form-group mt-4">
-                  <button type="submit" class="btn btn-auth py-3 px-4">Log In</button>
+                  <button type="submit" class="btn btn-auth py-3 px-4">Create Account</button>
                 </div>
 
                 <div class="text-center mt-3">
-                  <p>Don't have an account? <a href="register.php" style="color: #1089ff; font-weight: 600;">Register Here</a></p>
+                  <p>Already have an account? <a href="login.php" style="color: #1089ff; font-weight: 600;">Log In Here</a></p>
                 </div>
               </form>
             </div>

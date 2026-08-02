@@ -98,6 +98,15 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `role`, `created_at`) VALUES
+(1, 'System Admin', 'admin@carbook.com', '$2y$10$e8wF0iB7jN1p7x7aP01jQ.f8xP8JgQ6u1234567890abcdefghijk', '01000000000', 'both', '2026-08-02 12:00:00'),
+(2, 'Ahmed Mohamed', 'ahmed@example.com', '$2y$10$e8wF0iB7jN1p7x7aP01jQ.f8xP8JgQ6u1234567890abcdefghijk', '01012345678', 'renter', '2026-08-02 12:05:00');
+
+
+--
 -- Indexes for dumped tables
 --
 
