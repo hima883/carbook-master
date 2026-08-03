@@ -34,7 +34,7 @@ CREATE TABLE `bookings` (
   `pickup_datetime` datetime NOT NULL,
   `return_datetime` datetime NOT NULL,
   `total_price` decimal(10,2) NOT NULL,
-  `booking_status` enum('pending','confirmed','completed','cancelled') NOT NULL DEFAULT 'pending',
+  `booking_status` enum('pending','completed','cancelled') NOT NULL DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -58,7 +58,7 @@ CREATE TABLE `cars` (
   `fuel_type` enum('petrol','diesel','electric') NOT NULL,
   `transmission` enum('automatic','manual') NOT NULL,
   `seats` tinyint(3) UNSIGNED DEFAULT NULL,
-  `status` enum('available','unavailable','coming_soon') NOT NULL DEFAULT 'available',
+  `status` enum('available','unavailable') NOT NULL DEFAULT 'available',
   `image` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -74,8 +74,8 @@ CREATE TABLE `payments` (
   `id` int(10) UNSIGNED NOT NULL,
   `booking_id` int(10) UNSIGNED NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  `payment_method` enum('cash','card') NOT NULL,
-  `payment_status` enum('pending','paid','failed','refunded') NOT NULL DEFAULT 'pending',
+  `payment_method` enum('cash') NOT NULL,
+  `payment_status` enum('paid','failed') NOT NULL DEFAULT 'failed',
   `transaction_id` varchar(255) DEFAULT NULL,
   `paid_at` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -96,7 +96,7 @@ CREATE TABLE `users` (
   `email` varchar(150) NOT NULL,
   `password` varchar(255) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
-  `role` enum('renter','owner','both') NOT NULL DEFAULT 'renter',
+  `role` enum('renter','owner') NOT NULL DEFAULT 'renter',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
