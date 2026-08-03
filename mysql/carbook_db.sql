@@ -39,10 +39,10 @@ CREATE TABLE `bookings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `cars`
 --
+-- damages .
 
 CREATE TABLE `cars` (
   `id` int(10) UNSIGNED NOT NULL,
@@ -86,6 +86,9 @@ CREATE TABLE `payments` (
 --
 -- Table structure for table `users`
 --
+
+-- history_damage (int) for the tenant -> if he damage any car refers to how many times the tenant damage the car and the owner can see it in the history of the tenant and he can decide 
+-- driving license (varchar) for the tenant -> for being able to rent a car the tenant must have a driving license and he must upload it to the system and the owner can see it in the history of the tenant and he can decide
 
 CREATE TABLE `users` (
   `id` int(10) UNSIGNED NOT NULL,
