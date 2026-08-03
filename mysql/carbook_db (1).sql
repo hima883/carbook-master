@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 02, 2026 at 03:49 PM
+-- Generation Time: Aug 03, 2026 at 09:09 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -39,15 +39,14 @@ CREATE TABLE `bookings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
+
 --
 -- Table structure for table `cars`
 --
--- damages .
 
 CREATE TABLE `cars` (
   `id` int(10) UNSIGNED NOT NULL,
   `owner_id` int(10) UNSIGNED DEFAULT NULL,
-  `name` varchar(100) NOT NULL,
   `brand` varchar(100) NOT NULL,
   `model` varchar(100) DEFAULT NULL,
   `year` year(4) DEFAULT NULL,
@@ -74,8 +73,8 @@ CREATE TABLE `payments` (
   `id` int(10) UNSIGNED NOT NULL,
   `booking_id` int(10) UNSIGNED NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  `payment_method` enum('cash') NOT NULL,
-  `payment_status` enum('paid','failed') NOT NULL DEFAULT 'failed',
+  `payment_method` enum('cash','card') NOT NULL,
+  `payment_status` enum('pending','paid','failed','refunded') NOT NULL DEFAULT 'pending',
   `transaction_id` varchar(255) DEFAULT NULL,
   `paid_at` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -87,27 +86,15 @@ CREATE TABLE `payments` (
 -- Table structure for table `users`
 --
 
--- history_damage (int) for the tenant -> if he damage any car refers to how many times the tenant damage the car and the owner can see it in the history of the tenant and he can decide 
--- driving license (varchar) for the tenant -> for being able to rent a car the tenant must have a driving license and he must upload it to the system and the owner can see it in the history of the tenant and he can decide
-
 CREATE TABLE `users` (
   `id` int(10) UNSIGNED NOT NULL,
   `name` varchar(100) NOT NULL,
   `email` varchar(150) NOT NULL,
   `password` varchar(255) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
-  `role` enum('renter','owner') NOT NULL DEFAULT 'renter',
+  `role` enum('renter','owner','both') NOT NULL DEFAULT 'renter',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `role`, `created_at`) VALUES
-(1, 'System Admin', 'admin@carbook.com', '$2y$10$e8wF0iB7jN1p7x7aP01jQ.f8xP8JgQ6u1234567890abcdefghijk', '01000000000', 'both', '2026-08-02 12:00:00'),
-(2, 'Ahmed Mohamed', 'ahmed@example.com', '$2y$10$e8wF0iB7jN1p7x7aP01jQ.f8xP8JgQ6u1234567890abcdefghijk', '01012345678', 'renter', '2026-08-02 12:05:00');
-
 
 --
 -- Indexes for dumped tables
