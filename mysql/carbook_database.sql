@@ -10,7 +10,7 @@ CREATE TABLE owners (
     name            VARCHAR(100) NOT NULL,
     email           VARCHAR(150) NOT NULL UNIQUE,
     password        VARCHAR(255) NOT NULL,
-    phone           VARCHAR(20),
+    phone           VARCHAR(20) NOT NULL UNIQUE,
     balance         DECIMAL(12,2) NOT NULL DEFAULT 0.00,
 
     CONSTRAINT chk_owner_balance CHECK (balance >= 0)
@@ -22,7 +22,7 @@ CREATE TABLE tenants (
     name            VARCHAR(100) NOT NULL,
     email           VARCHAR(150) NOT NULL UNIQUE,
     password        VARCHAR(255) NOT NULL,
-    phone           VARCHAR(20),
+    phone           VARCHAR(20) NOT NULL UNIQUE,
     damages_count    INT UNSIGNED NOT NULL DEFAULT 0  -- number of damages
 ) ENGINE=InnoDB;
 
@@ -32,12 +32,12 @@ CREATE TABLE cars (
     owner_id            INT UNSIGNED NOT NULL,
     make                VARCHAR(80) NOT NULL,
     model               VARCHAR(80) NOT NULL,
-    model_year          SMALLINT UNSIGNED NULL,
+    model_year          SMALLINT UNSIGNED NOT NULL,
     plate_number        VARCHAR(30) NOT NULL UNIQUE,  -- رقم العربية أو نمر العربية
-    color               VARCHAR(40) NULL,
+    color               VARCHAR(40) NOT NULL,
     daily_rent          DECIMAL(12,2) NOT NULL,
     status              ENUM('available','rented' , 'unavailable') NOT NULL DEFAULT 'available', 
-    `image` varchar(255) DEFAULT NULL,
+    `image` varchar(255) DEFAULT NOT NULL,
 
     CONSTRAINT chk_car_daily_rent CHECK (daily_rent > 0),
     CONSTRAINT fk_cars_owner FOREIGN KEY (owner_id)

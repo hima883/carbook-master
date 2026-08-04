@@ -60,8 +60,7 @@ CREATE TABLE `cars` (
   `seats` tinyint(3) UNSIGNED DEFAULT NULL,
   `status` enum('available','unavailable') NOT NULL DEFAULT 'available',
   `image` varchar(255) DEFAULT NULL,
-  `description` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `description` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -76,9 +75,6 @@ CREATE TABLE `payments` (
   `amount` decimal(10,2) NOT NULL,
   `payment_method` enum('cash') NOT NULL,
   `payment_status` enum('paid','failed') NOT NULL DEFAULT 'failed',
-  `transaction_id` varchar(255) DEFAULT NULL,
-  `paid_at` datetime DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -96,18 +92,8 @@ CREATE TABLE `users` (
   `email` varchar(150) NOT NULL,
   `password` varchar(255) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
-  `role` enum('renter','owner') NOT NULL DEFAULT 'renter',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `role` enum('renter','owner') NOT NULL DEFAULT 'renter'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `role`, `created_at`) VALUES
-(1, 'System Admin', 'admin@carbook.com', '$2y$10$e8wF0iB7jN1p7x7aP01jQ.f8xP8JgQ6u1234567890abcdefghijk', '01000000000', 'both', '2026-08-02 12:00:00'),
-(2, 'Ahmed Mohamed', 'ahmed@example.com', '$2y$10$e8wF0iB7jN1p7x7aP01jQ.f8xP8JgQ6u1234567890abcdefghijk', '01012345678', 'renter', '2026-08-02 12:05:00');
-
 
 --
 -- Indexes for dumped tables
