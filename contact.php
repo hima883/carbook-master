@@ -1,3 +1,13 @@
+<?php
+
+require_once __DIR__ . '/config/auth.php';
+
+if (!is_logged_in()) {
+    header("Location: login.php");
+    exit();
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -44,6 +54,7 @@
 	          <li class="nav-item"><a href="car.php" class="nav-link">Cars</a></li>
 	          <li class="nav-item"><a href="blog.php" class="nav-link">Blog</a></li>
 	          <li class="nav-item active"><a href="contact.php" class="nav-link">Contact</a></li>
+            <li class="nav-item"><a href="profile.php" class="nav-link">My Profile</a></li>
 	        </ul>
 	      </div>
 	    </div>

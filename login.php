@@ -68,14 +68,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         margin-bottom: 5px;
       }
       .form-control {
-        height: 48px !important;
-        border-radius: 6px;
-        border: 1px solid #e6e6e6;
-        font-size: 15px;
-      }
-      .form-control:focus {
-        border-color: #1089ff;
-      }
+      height: 48px !important;
+      border-radius: 6px;
+      border: 2px solid #1089ff !important;
+
+      background-color: #f2f8ff !important;
+
+    /* الكلام اللي المستخدم بيكتبه */
+      color: #000000 !important;
+
+      font-size: 15px;
+      transition: all 0.3s ease;
+  }
+
+  .form-control::placeholder {
+      color: #7a9bbd !important;
+      opacity: 1;
+  }
+
+  .form-control:focus {
+      color: #000000 !important;
+      background-color: #ffffff !important;
+      border-color: #0069d9 !important;
+      box-shadow: 0 0 0 3px rgba(16, 137, 255, 0.15) !important;
+      outline: none;
+  }
+
+  .form-control:focus {
+      border-color: #0069d9 !important;
+      background-color: #ffffff !important;
+
+      box-shadow: 0 0 0 3px rgba(16, 137, 255, 0.15) !important;
+      outline: none;
+  }
       .btn-auth {
         height: 50px;
         font-weight: 600;
@@ -91,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background: #0069d9;
         border-color: #0062cc;
       }
+      
     </style>
   </head>
   <body>

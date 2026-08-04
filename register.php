@@ -86,14 +86,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         margin-bottom: 5px;
       }
       .form-control {
-        height: 48px !important;
-        border-radius: 6px;
-        border: 1px solid #e6e6e6;
-        font-size: 15px;
-      }
-      .form-control:focus {
-        border-color: #1089ff;
-      }
+    height: 48px !important;
+    border-radius: 6px;
+    border: 2px solid #1089ff !important;
+
+    background-color: #f2f8ff !important;
+
+    /* لون الكلام اللي المستخدم بيكتبه */
+    color: #000000 !important;
+
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+  .form-control::placeholder {
+      color: #7a9bbd !important;
+      opacity: 1;
+  }
+
+  .form-control:focus {
+      color: #000000 !important;
+      background-color: #ffffff !important;
+      border-color: #0069d9 !important;
+      box-shadow: 0 0 0 3px rgba(16, 137, 255, 0.15) !important;
+      outline: none;
+  }
+
+  /* Account Type */
+  select.form-control {
+      color: #000000 !important;
+      background-color: #f2f8ff !important;
+  }
+
+  select.form-control option {
+      color: #000000;
+      background-color: #ffffff;
+  }
       .btn-auth {
         height: 50px;
         font-weight: 600;
