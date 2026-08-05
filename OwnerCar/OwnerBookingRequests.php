@@ -65,7 +65,11 @@ AND
 
 bookings.booking_status = 'pending'
 
-ORDER BY bookings.id DESC
+ORDER BY
+
+tenants.damages_count ASC,
+
+bookings.id ASC
 
 ";
 

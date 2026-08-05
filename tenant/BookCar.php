@@ -59,10 +59,7 @@ if ($result->num_rows == 0) {
 }
 
 
-
 $car = $result->fetch_assoc();
-
-
 
 
 // =======================================
@@ -77,6 +74,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $return_datetime = $_POST['return_datetime'];
 
 
+// =======================================
+// Check Booking Date Conflict
+// =======================================
+
+$check_query = "
+
+SELECT id
+
+FROM bookings
+
+WHERE car_id = ?
+
+AND booking_status = 'approved'
+
+AND (
+
+    pickup_datetime <= ?
+
+    AND
+
+    return_datetime >= ?
+
+)"
+;
+
+$check_result = $conn->execute_query($check_query,[
+
+    $car_id,
+
+    $return_datetime,
+
+    $pickup_datetime
+
+]);
+
+
+
+if($check_result->num_rows > 0){
+
+    die("This car is already booked during the selected period.");
+
+}
+
+
+    $today = date("Y-m-d H:i:s");
+
+if ($pickup_datetime < $today) {
+
+    die("Pickup date cannot be before today.");
+
+}
+
+if ($return_datetime <= $pickup_datetime) {
+
+    die("Return date must be after pickup date.");
+
+}
 
     $daily_rent = $car['daily_rent'];
 
@@ -450,39 +504,37 @@ EGP / Day
 
 <form method="POST">
 
+<!-- <label> Pickup Date & Time </label>
+<input type="datetime-local" name="pickup_datetime" required>
+
+<label> Return Date & Time </label>
+<input type="datetime-local" name="return_datetime" required> -->
+
+<?php
+
+$today = date("Y-m-d\TH:i");
+
+?>
 
 <label>
-
 Pickup Date & Time
-
 </label>
 
-
 <input
-
 type="datetime-local"
-
 name="pickup_datetime"
-
+min="<?= $today ?>"
 required>
-
-
 
 <label>
-
 Return Date & Time
-
 </label>
 
-
 <input
-
 type="datetime-local"
-
 name="return_datetime"
-
+min="<?= $today ?>"
 required>
-
 
 
 <button type="submit">
@@ -491,15 +543,10 @@ Confirm Booking
 
 </button>
 
-
 </form>
-
-
 
 </div>
 
-
 </body>
-
 
 </html>

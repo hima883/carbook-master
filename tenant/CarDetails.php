@@ -402,7 +402,7 @@ Owner Information
 
 <a 
 
-href="BookCar.php?car_id=<?= $car['id'] ?>"
+href="BookCar.php?car_id=<?=$car['id'] ?>"
 
 class="book-btn">
 
