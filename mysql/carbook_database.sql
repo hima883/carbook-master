@@ -54,7 +54,7 @@ CREATE TABLE bookings (
     return_datetime         DATETIME NOT NULL,
     daily_rent              DECIMAL(12,2) NOT NULL,
     total_price             DECIMAL(12,2) NOT NULL,
-    booking_status          ENUM('pending','completed','cancelled') NOT NULL DEFAULT 'pending',
+    booking_status          ENUM('pending','completed','approved' ,'cancelled') NOT NULL DEFAULT 'pending',
  
     CONSTRAINT chk_booking_dates CHECK (return_datetime > pickup_datetime),
     CONSTRAINT chk_booking_amounts CHECK (daily_rent > 0 AND total_price >= 0),
