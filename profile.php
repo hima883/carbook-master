@@ -17,6 +17,33 @@ $stmt = $pdo->prepare('SELECT id, name, email, phone, role, created_at FROM user
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
+// --- Fetch tenant data ---
+$tenant = null;
+
+if ($user['role'] === 'renter' || $user['role'] === 'both') {
+    $stmt = $pdo->prepare("
+        SELECT driving_license, damages_count
+        FROM tenants
+        WHERE user_id = ?
+    ");
+    $stmt->execute([$user_id]);
+    $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+
+// --- Fetch owner data ---
+$owner = null;
+
+if ($user['role'] === 'owner' || $user['role'] === 'both') {
+    $stmt = $pdo->prepare("
+        SELECT balance
+        FROM owners
+        WHERE user_id = ?
+    ");
+    $stmt->execute([$user_id]);
+    $owner = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 if (!$user) {
     session_destroy();
     header('Location: login.php');
@@ -55,6 +82,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         $user['name']  = $name;
         $user['email'] = $email;
         $user['phone'] = $phone;
+    }
+}
+
+// --- Handle driving license update ---
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['update_license'])
+    && ($user['role'] === 'renter' || $user['role'] === 'both')
+) {
+
+    $driving_license = trim($_POST['driving_license'] ?? '');
+
+    if ($driving_license === '') {
+
+        $errors[] = 'Driving license number is required.';
+
+    } else {
+
+        // Check if license is already used by another tenant
+        $check = $pdo->prepare("
+            SELECT user_id
+            FROM tenants
+            WHERE driving_license = ?
+            AND user_id != ?
+        ");
+
+        $check->execute([
+            $driving_license,
+            $user_id
+        ]);
+
+        if ($check->fetch()) {
+
+            $errors[] = 'This driving license is already registered.';
+
+        } else {
+
+            $update = $pdo->prepare("
+                UPDATE tenants
+                SET driving_license = ?
+                WHERE user_id = ?
+            ");
+
+            $update->execute([
+                $driving_license,
+                $user_id
+            ]);
+
+            $tenant['driving_license'] = $driving_license;
+
+            $success = 'Driving license updated successfully.';
+        }
     }
 }
 
@@ -242,6 +321,18 @@ $status_badge = [
             </div>
           </div>
 
+          <?php if ($user['role'] === 'owner' || $user['role'] === 'both'): ?>
+
+              <li>
+            <span class="label">Balance</span>
+
+            <span>
+              $<?= number_format((float)($owner['balance'] ?? 0), 2) ?> EGP
+            </span>
+            </li>
+
+          <?php endif; ?>
+
           <!-- Right: Edit forms + bookings -->
           <div class="col-md-8">
 
@@ -263,6 +354,58 @@ $status_badge = [
                 <button type="submit" name="update_profile" class="btn btn-primary py-2 px-4">Save Changes</button>
               </form>
             </div>
+
+            <?php if ($user['role'] === 'renter' || $user['role'] === 'both'): ?>
+
+                  <div class="profile-card">
+
+                  <h4 class="mb-4">
+                    Driving License
+                  </h4>
+
+                  <form method="post" action="profile.php">
+
+                  <div class="form-group">
+
+                  <label for="driving_license">
+                    Driving License Number
+                  </label>
+
+                  <input
+                  type="text"
+                  id="driving_license"
+                  name="driving_license"
+                  class="form-control"
+                  value="<?= htmlspecialchars($tenant['driving_license'] ?? '') ?>"
+                  placeholder="Enter your driving license number"
+                  required
+                  >
+
+                  </div>
+
+                  <button
+                  type="submit"
+                  name="update_license"
+                  class="btn btn-primary"
+                  style="
+                  padding: 12px 25px !important;
+                  min-width: 180px;
+                  height: auto !important;
+                  color: white !important;
+                  font-size: 15px !important;
+                  font-weight: 600;
+                  line-height: 1.5 !important;
+                  display: inline-block !important;
+                  "
+                >
+                  Save Driving License
+                </button>
+
+                </form>
+
+              </div>
+
+            <?php endif; ?>
 
             <div class="profile-card">
               <h4 class="mb-4">Change Password</h4>

@@ -26,29 +26,45 @@ function register_user($conn, $name, $email, $password, $phone = '', $role = 're
     $email = trim(strtolower($email));
     $password = trim($password);
     $phone = trim($phone);
+
     $allowed_roles = ['renter', 'owner', 'both'];
-    
-    if (!in_array($role, $allowed_roles)) {
+
+    if (!in_array($role, $allowed_roles, true)) {
         $role = 'renter';
     }
 
     // Basic Validations
     if (empty($name) || empty($email) || empty($password)) {
-        return ['success' => false, 'message' => 'يرجى ملء جميع الحقول المطلوبة.'];
+        return [
+            'success' => false,
+            'message' => 'يرجى ملء جميع الحقول المطلوبة.'
+        ];
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        return ['success' => false, 'message' => 'البريد الإلكتروني غير صالح.'];
+        return [
+            'success' => false,
+            'message' => 'البريد الإلكتروني غير صالح.'
+        ];
     }
 
     if (strlen($password) < 6) {
-        return ['success' => false, 'message' => 'يجب أن تكون كلمة المرور مكونة من 6 خانات على الأقل.'];
+        return [
+            'success' => false,
+            'message' => 'يجب أن تكون كلمة المرور مكونة من 6 خانات على الأقل.'
+        ];
     }
 
     // Check if email already exists
-    $check_stmt = $conn->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
+    $check_stmt = $conn->prepare(
+        "SELECT id FROM users WHERE email = ? LIMIT 1"
+    );
+
     if (!$check_stmt) {
-        return ['success' => false, 'message' => 'خطأ في قاعدة البيانات: ' . $conn->error];
+        return [
+            'success' => false,
+            'message' => 'خطأ في قاعدة البيانات: ' . $conn->error
+        ];
     }
 
     $check_stmt->bind_param("s", $email);
@@ -57,34 +73,127 @@ function register_user($conn, $name, $email, $password, $phone = '', $role = 're
 
     if ($check_stmt->num_rows > 0) {
         $check_stmt->close();
-        return ['success' => false, 'message' => 'البريد الإلكتروني مُسجل بالفعل. يرجى استخدام بريد آخر أو تسجيل الدخول.'];
+
+        return [
+            'success' => false,
+            'message' => 'البريد الإلكتروني مُسجل بالفعل.'
+        ];
     }
+
     $check_stmt->close();
 
-    // Secure Password Hashing using BCRYPT
+    // Hash Password
     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-    // Insert user into DB using prepared statement
-    $stmt = $conn->prepare("INSERT INTO users (name, email, password, phone, role) VALUES (?, ?, ?, ?, ?)");
-    if (!$stmt) {
-        return ['success' => false, 'message' => 'خطأ في تجهيز البيانات: ' . $conn->error];
-    }
+    // Start Transaction
+    $conn->begin_transaction();
 
-    $stmt->bind_param("sssss", $name, $email, $hashed_password, $phone, $role);
+    try {
 
-    if ($stmt->execute()) {
+        // =====================================
+        // 1. Add user to users table
+        // =====================================
+
+        $stmt = $conn->prepare(
+            "INSERT INTO users
+            (name, email, password, phone, role)
+            VALUES (?, ?, ?, ?, ?)"
+        );
+
+        if (!$stmt) {
+            throw new Exception($conn->error);
+        }
+
+        $stmt->bind_param(
+            "sssss",
+            $name,
+            $email,
+            $hashed_password,
+            $phone,
+            $role
+        );
+
+        if (!$stmt->execute()) {
+            throw new Exception($stmt->error);
+        }
+
+        // Get new user ID
         $user_id = $stmt->insert_id;
+
         $stmt->close();
+
+
+        // =====================================
+        // 2. If Owner
+        // =====================================
+
+        if ($role === 'owner' || $role === 'both') {
+
+            $owner_stmt = $conn->prepare(
+                "INSERT INTO owners (user_id)
+                 VALUES (?)"
+            );
+
+            if (!$owner_stmt) {
+                throw new Exception($conn->error);
+            }
+
+            $owner_stmt->bind_param("i", $user_id);
+
+            if (!$owner_stmt->execute()) {
+                throw new Exception($owner_stmt->error);
+            }
+
+            $owner_stmt->close();
+        }
+
+
+        // =====================================
+        // 3. If Tenant
+        // =====================================
+
+        if ($role === 'renter' || $role === 'both') {
+
+            $tenant_stmt = $conn->prepare(
+                "INSERT INTO tenants (user_id)
+                 VALUES (?)"
+            );
+
+            if (!$tenant_stmt) {
+                throw new Exception($conn->error);
+            }
+
+            $tenant_stmt->bind_param("i", $user_id);
+
+            if (!$tenant_stmt->execute()) {
+                throw new Exception($tenant_stmt->error);
+            }
+
+            $tenant_stmt->close();
+        }
+
+
+        // =====================================
+        // Everything successful
+        // =====================================
+
+        $conn->commit();
 
         return [
             'success' => true,
-            'message' => 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.',
+            'message' => 'تم إنشاء الحساب بنجاح!',
             'user_id' => $user_id
         ];
-    } else {
-        $error = $stmt->error;
-        $stmt->close();
-        return ['success' => false, 'message' => 'تعذر إنشاء الحساب: ' . $error];
+
+    } catch (Exception $e) {
+
+        // Something failed -> undo everything
+        $conn->rollback();
+
+        return [
+            'success' => false,
+            'message' => 'تعذر إنشاء الحساب: ' . $e->getMessage()
+        ];
     }
 }
 
