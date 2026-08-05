@@ -460,7 +460,7 @@ if ($requests->num_rows > 0) {
 
             <a
 
-            href="RejectBooking.php?booking_id=<?= $row['booking_id'] ?>"
+            href="OwnerRejectBooking.php?booking_id=<?= $row['booking_id'] ?>"
 
             class="reject-btn"
 
