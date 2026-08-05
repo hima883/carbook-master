@@ -450,7 +450,7 @@ if ($requests->num_rows > 0) {
 
             <a
 
-            href="ApproveBooking.php?booking_id=<?= $row['booking_id'] ?>"
+            href="OwnerApproveBooking.php?booking_id=<?= $row['booking_id'] ?>"
 
             class="approve-btn">
 
