@@ -37,7 +37,7 @@ CREATE TABLE cars (
     color               VARCHAR(40) NOT NULL,
     daily_rent          DECIMAL(12,2) NOT NULL,
     status              ENUM('available','rented' , 'unavailable') NOT NULL DEFAULT 'available', 
-    `image` varchar(255) DEFAULT NOT NULL,
+    `image` varchar(255) NOT NULL,
 
     CONSTRAINT chk_car_daily_rent CHECK (daily_rent > 0),
     CONSTRAINT fk_cars_owner FOREIGN KEY (owner_id)
