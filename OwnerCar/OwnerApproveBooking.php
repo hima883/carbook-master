@@ -243,7 +243,7 @@ echo "
 
 alert('Booking approved successfully.');
 
-window.location='BookingRequests.php';
+window.location='OwnerBookingRequests.php';
 
 </script>
 
