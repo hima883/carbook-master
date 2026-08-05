@@ -75,6 +75,58 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 // =======================================
+// Check if Car is Already Booked
+// =======================================
+
+
+$check_booking = "
+
+SELECT id
+
+FROM bookings
+
+WHERE
+
+car_id = ?
+
+AND
+
+booking_status = 'approved'
+
+AND
+
+(
+
+    pickup_datetime <= ?
+
+    AND
+
+    return_datetime >= ?
+
+)
+
+";
+
+
+$existing_booking = $conn->execute_query($check_booking,[
+
+    $car_id,
+
+    $return_datetime,
+
+    $pickup_datetime
+
+]);
+
+
+
+if($existing_booking->num_rows > 0){
+
+    die("This car is already booked during the selected period.");
+}
+
+
+// =======================================
 // Check Booking Date Conflict
 // =======================================
 
