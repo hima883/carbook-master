@@ -539,7 +539,7 @@ else{
 
             <a
 
-            href="../OwnerCar/OwnerConfirmPayment.php?booking_id=<?= $row['booking_id'] ?>"
+            href="OwnerConfirmPayment.php?booking_id=<?= $row['booking_id'] ?>"
 
             class="approve-btn">
 
@@ -567,9 +567,36 @@ else{
 
     }
 
+ else{
+
+    if(strtotime(date("Y-m-d H:i:s")) >= strtotime($row['return_datetime'])){
+
+?>
+
+        <a
+        href="OwnerCompleteBooking.php?booking_id=<?= $row['booking_id'] ?>"
+        class="approve-btn"
+        onclick="return confirm('Are you sure you want to complete this booking?');">
+
+            Complete Booking
+
+        </a>
+
+<?php
+
+    }
+
     else{
 
 ?>
+
+        <span>
+
+            Waiting For Return Date
+
+        </span>
+
+        <br><br>
 
         <span>
 
@@ -580,6 +607,8 @@ else{
 <?php
 
     }
+
+}
 
 }
 

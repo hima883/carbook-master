@@ -217,7 +217,7 @@ echo "
 
 alert('Payment confirmed successfully.');
 
-window.location='BookingRequests.php';
+window.location='../OwnerCar/OwnerBookingRequests.php';
 
 </script>
 
