@@ -45,7 +45,9 @@ tenants.phone,
 
 tenants.driving_license,
 
-tenants.damages_count
+tenants.damages_count ,
+
+payments.payment_status
 
 FROM bookings
 
@@ -57,13 +59,17 @@ INNER JOIN tenants
 
 ON bookings.tenant_license = tenants.driving_license
 
+LEFT JOIN payments
+
+ON bookings.id = payments.booking_id
+
 WHERE
 
 cars.owner_id = ?
 
 AND
 
-bookings.booking_status = 'pending'
+bookings.booking_status IN ('pending','approved')
 
 ORDER BY
 
@@ -446,31 +452,140 @@ if ($requests->num_rows > 0) {
 
         </div>
 
-        <div class="buttons">
+  
+<div class="buttons">
+
+<?php
+
+if($row['booking_status'] == 'pending'){
+
+?>
+
+    <a
+
+    href="OwnerApproveBooking.php?booking_id=<?= $row['booking_id'] ?>"
+
+    class="approve-btn">
+
+        Approve
+
+    </a>
+
+
+    <a
+
+    href="OwnerRejectBooking.php?booking_id=<?= $row['booking_id'] ?>"
+
+    class="reject-btn"
+
+    onclick="return confirm('Are you sure you want to reject this booking request?');">
+
+        Reject
+
+    </a>
+
+<?php
+
+}
+
+else{
+
+?>
+
+    <p>
+
+        <strong>Payment Status:</strong>
+
+        <?= ucfirst($row['payment_status']) ?>
+
+    </p>
+
+<?php
+
+// test here -> time matching for pickup date and time with the current server time to allow the owner to confirm payment only after the pickup date and time has passed
+    // echo "<hr>";
+
+// echo "Booking Status: " . $row['booking_status'];
+
+// echo "<br>";
+
+// echo "Payment Status: ";
+
+// var_dump($row['payment_status']);
+
+// echo "<br>";
+
+// echo "Server Time: " . date("Y-m-d H:i:s");
+
+// echo "<br>";
+
+// echo "Pickup Time: " . $row['pickup_datetime'];
+
+// echo "<br>";
+
+// echo "Time Compare: ";
+
+// var_dump(strtotime(date("Y-m-d H:i:s")) >= strtotime($row['pickup_datetime']));
+
+// echo "<hr>";
+
+// end test  - > don't forget to remove this after testing
+
+    if($row['payment_status'] == 'pending'){
+
+        if(strtotime(date("Y-m-d H:i:s")) >= strtotime($row['pickup_datetime'])){
+
+?>
 
             <a
 
-            href="OwnerApproveBooking.php?booking_id=<?= $row['booking_id'] ?>"
+            href="../OwnerCar/OwnerConfirmPayment.php?booking_id=<?= $row['booking_id'] ?>"
 
             class="approve-btn">
 
-                Approve
+                Confirm Payment
 
             </a>
 
-            <a
+<?php
 
-            href="OwnerRejectBooking.php?booking_id=<?= $row['booking_id'] ?>"
+        }
 
-            class="reject-btn"
+        else{
 
-            onclick="return confirm('Are you sure you want to reject this booking request?');">
+?>
 
-                Reject
+            <span>
 
-            </a>
+                Waiting For Pickup Date
 
-        </div>
+            </span>
+
+<?php
+
+        }
+
+    }
+
+    else{
+
+?>
+
+        <span>
+
+            ✅ Payment Completed
+
+        </span>
+
+<?php
+
+    }
+
+}
+
+?>
+
+</div>
 
     </div>
 
@@ -490,7 +605,9 @@ else {
 
     <h2>
 
-        No Pending Booking Requests
+        <!-- No Pending Booking Requests -->
+
+        No Booking Requests Found
 
     </h2>
 
@@ -498,7 +615,7 @@ else {
 
     <p>
 
-        There are currently no booking requests waiting for your approval.
+        There are currently no pending or approved booking requests.
 
     </p>
 
