@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('Africa/Cairo');
+
 $host = "localhost";
 $dbname = "carbook_database";
 $username = "root";
