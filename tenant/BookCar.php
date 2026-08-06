@@ -1,14 +1,29 @@
 <?php
 
 require_once '../mysql/db_connect.php';
+require_once '../config/auth.php';
 
+require_login('../login.php');
 
-// =======================================
-// Tenant License
-// =======================================
+$user_id = $_SESSION['user_id'];
 
-$tenant_license = 1; 
-// Replace with $_SESSION['tenant_license'] after creating Tenant Login Session
+// Make sure the logged-in user is a tenant
+$tenant_check = $conn->prepare("
+    SELECT user_id
+    FROM tenants
+    WHERE user_id = ?
+");
+
+$tenant_check->bind_param("i", $user_id);
+$tenant_check->execute();
+
+$tenant_result = $tenant_check->get_result();
+
+if ($tenant_result->num_rows === 0) {
+    die("You must be a tenant to book a car.");
+}
+
+$tenant_check->close();
 
 
 
@@ -73,144 +88,73 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $return_datetime = $_POST['return_datetime'];
 
+    // =======================================
+// Validate Dates
+// =======================================
+
+if (empty($pickup_datetime) || empty($return_datetime)) {
+    die("Pickup and return dates are required.");
+}
+
+$pickup = new DateTime($pickup_datetime);
+$return = new DateTime($return_datetime);
+$now = new DateTime();
+
+if ($pickup < $now) {
+    die("Pickup date cannot be before today.");
+}
+
+if ($return <= $pickup) {
+    die("Return date must be after pickup date.");
+}
+
 
 // =======================================
-// Check if Car is Already Booked
+// Check Booking Conflict
 // =======================================
-
 
 $check_booking = "
+    SELECT id
+    FROM bookings
 
-SELECT id
+    WHERE car_id = ?
 
-FROM bookings
+    AND booking_status = 'approved'
 
-WHERE
+    AND pickup_datetime < ?
+    AND return_datetime > ?
 
-car_id = ?
-
-AND
-
-booking_status = 'approved'
-
-AND
-
-(
-
-    pickup_datetime <= ?
-
-    AND
-
-    return_datetime >= ?
-
-)
-
+    LIMIT 1
 ";
 
-
-$existing_booking = $conn->execute_query($check_booking,[
-
+$existing_booking = $conn->execute_query($check_booking, [
     $car_id,
-
     $return_datetime,
-
     $pickup_datetime
-
 ]);
 
-
-
-if($existing_booking->num_rows > 0){
-
+if ($existing_booking->num_rows > 0) {
     die("This car is already booked during the selected period.");
 }
 
 
+
+
 // =======================================
-// Check Booking Date Conflict
+// Calculate Total Price
 // =======================================
 
-$check_query = "
+$daily_rent = (float) $car['price_per_day'];
 
-SELECT id
+$seconds = $return->getTimestamp() - $pickup->getTimestamp();
 
-FROM bookings
+$days = (int) ceil($seconds / 86400);
 
-WHERE car_id = ?
-
-AND booking_status = 'approved'
-
-AND (
-
-    pickup_datetime <= ?
-
-    AND
-
-    return_datetime >= ?
-
-)"
-;
-
-$check_result = $conn->execute_query($check_query,[
-
-    $car_id,
-
-    $return_datetime,
-
-    $pickup_datetime
-
-]);
-
-
-
-if($check_result->num_rows > 0){
-
-    die("This car is already booked during the selected period.");
-
+if ($days < 1) {
+    $days = 1;
 }
 
-
-    $today = date("Y-m-d H:i:s");
-
-if ($pickup_datetime < $today) {
-
-    die("Pickup date cannot be before today.");
-
-}
-
-if ($return_datetime <= $pickup_datetime) {
-
-    die("Return date must be after pickup date.");
-
-}
-
-    $daily_rent = $car['daily_rent'];
-
-
-
-    $start = new DateTime($pickup_datetime);
-
-    $end = new DateTime($return_datetime);
-
-
-
-    $difference = $start->diff($end);
-
-
-
-    $days = $difference->days;
-
-
-
-    if ($days == 0) {
-
-        $days = 1;
-
-    }
-
-
-
-    $total_price = $days * $daily_rent;
+$total_price = $days * $daily_rent;
 
     
 // =======================================
@@ -218,11 +162,9 @@ if ($return_datetime <= $pickup_datetime) {
 // =======================================
 
 $insert = "
-
 INSERT INTO bookings
-
 (
-    tenant_license,
+    user_id,
     car_id,
     pickup_datetime,
     return_datetime,
@@ -230,9 +172,7 @@ INSERT INTO bookings
     total_price,
     booking_status
 )
-
 VALUES
-
 (
     ?,
     ?,
@@ -242,25 +182,15 @@ VALUES
     ?,
     'pending'
 )
-
 ";
 
-
-
 $conn->execute_query($insert, [
-
-    $tenant_license,
-
+    $user_id,
     $car_id,
-
     $pickup_datetime,
-
     $return_datetime,
-
     $daily_rent,
-
     $total_price
-
 ]);
 
 
@@ -514,7 +444,7 @@ Book Car
 
 <strong>Car:</strong>
 
-<?= $car['make'] . " " . $car['model'] ?>
+<?= $car['brand'] . " " . $car['model'] ?>
 
 </p>
 
@@ -524,7 +454,7 @@ Book Car
 
 <strong>Model Year:</strong>
 
-<?= $car['model_year'] ?>
+<?= $car['year'] ?>
 
 </p>
 
@@ -542,7 +472,7 @@ Book Car
 
 <p class="price">
 
-<?= number_format($car['daily_rent'],2) ?>
+<?= number_format($car['price_per_day'], 2) ?>
 
 EGP / Day
 

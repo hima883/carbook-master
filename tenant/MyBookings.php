@@ -1,15 +1,11 @@
 <?php
 
 require_once '../mysql/db_connect.php';
+require_once '../config/auth.php';
 
+require_login('../login.php');
 
-// =======================================
-// Tenant License
-// =======================================
-
-$tenant_license = 1;
-
-// Replace with $_SESSION['tenant_license'] after creating Tenant Login Session
+$user_id = $_SESSION['user_id'];
 
 
 
@@ -21,74 +17,48 @@ $tenant_license = 1;
 
 
 $get_bookings = "
-
 SELECT
+    bookings.id AS booking_id,
+    bookings.pickup_datetime,
+    bookings.return_datetime,
+    bookings.booking_status,
 
+    cars.brand,
+    cars.model,
+    cars.year,
+    cars.color,
+    cars.image,
 
-bookings.id AS booking_id,
+    users.name AS owner_name,
+    users.phone AS owner_phone,
 
-bookings.pickup_datetime,
-
-bookings.return_datetime,
-
-bookings.booking_status,
-
-
-cars.make,
-
-cars.model,
-
-cars.model_year,
-
-cars.color,
-
-cars.image,
-
-
-owners.name AS owner_name,
-
-owners.phone AS owner_phone,
-
-
-payments.payment_status,
-
-payments.amount
-
+    payments.payment_status,
+    payments.amount
 
 FROM bookings
 
-
 INNER JOIN cars
-
-ON bookings.car_id = cars.id
-
+    ON bookings.car_id = cars.id
 
 INNER JOIN owners
+    ON cars.owner_id = owners.user_id
 
-ON cars.owner_id = owners.id
-
+INNER JOIN users
+    ON owners.user_id = users.id
 
 LEFT JOIN payments
+    ON bookings.id = payments.booking_id
 
-ON bookings.id = payments.booking_id
-
-
-
-WHERE bookings.tenant_license = ?
-
+WHERE bookings.user_id = ?
 
 ORDER BY bookings.id DESC
-
-
 ";
 
 
 
 
-$result = $conn->execute_query($get_bookings,[
-
-    $tenant_license
-
+$result = $conn->execute_query($get_bookings, [
+    $user_id
 ]);
 
 
@@ -301,11 +271,11 @@ $image_path =  $booking['image'];
 
 <h2>
 
-<?php echo $booking['make']; ?>
+<?php echo $booking['brand']; ?>
 
 <?php echo $booking['model']; ?>
 
-(<?php echo $booking['model_year']; ?>)
+(<?php echo $booking['year']; ?>)
 
 </h2>
 

@@ -2,6 +2,34 @@
 
 require_once '../mysql/db_connect.php';
 
+require_once '../config/auth.php';
+
+require_login('../login.php');
+
+$user_id = $_SESSION['user_id'];
+
+// ========================================
+// Make sure logged-in user is an Owner
+// ========================================
+
+$check_owner = $conn->prepare("
+    SELECT user_id
+    FROM owners
+    WHERE user_id = ?
+");
+
+$check_owner->bind_param("i", $user_id);
+$check_owner->execute();
+
+$owner_result = $check_owner->get_result();
+
+if ($owner_result->num_rows === 0) {
+    die("You must be an owner to edit a car.");
+}
+
+$check_owner->close();
+
+$owner_id = $user_id;
 
 // ===============================
 // التأكد من وجود car_id
@@ -22,7 +50,7 @@ $stmt = "SELECT * FROM cars WHERE id = ? AND owner_id = ?";
 
 $result = $conn->execute_query($stmt, [
     $car_id,
-    1   // استبدلها بعدين بـ $_SESSION['owner_id']
+    $owner_id
 ]);
 
 if ($result->num_rows == 0) {
@@ -39,12 +67,18 @@ $car = $result->fetch_assoc();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $car_make         = trim($_POST['car_make']);
-    $car_model        = trim($_POST['car_model']);
-    $car_model_year   = $_POST['car_model_year'];
-    $car_color        = trim($_POST['car_color']);
-    $car_plate_number = trim($_POST['car_plate_number']);
-    $car_daily_rent   = $_POST['car_daily_rent'];
+    $car_brand        = trim($_POST['car_brand'] ?? '');
+    $car_model        = trim($_POST['car_model'] ?? '');
+    $car_plate_number = trim($_POST['car_plate_number'] ?? '');
+    $car_year         = (int)($_POST['car_year'] ?? 0);
+    $car_color        = trim($_POST['car_color'] ?? '');
+    $car_location     = trim($_POST['car_location'] ?? '');
+    $car_mileage      = (int)($_POST['car_mileage'] ?? 0);
+    $car_price        = (float)($_POST['car_price_per_day'] ?? 0);
+    $car_fuel_type    = $_POST['car_fuel_type'] ?? '';
+    $car_transmission = $_POST['car_transmission'] ?? '';
+    $car_seats        = (int)($_POST['car_seats'] ?? 0);
+    $car_description  = trim($_POST['car_description'] ?? '');
 
 
 
@@ -91,15 +125,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // التأكد أن رقم اللوحة غير مستخدم فى عربية تانية
     // ============================================
 
-    $checkPlate = "SELECT * FROM cars
-                   WHERE plate_number = ?
-                   AND id != ?
-                   AND owner_id = ?";
+    $checkPlate = "
+        SELECT id
+        FROM cars
+        WHERE plate_number = ?
+        AND id != ?
+    ";
 
     $check = $conn->execute_query($checkPlate, [
         $car_plate_number,
-        $car_id,
-        1      // استبدلها بعدين بـ $_SESSION['owner_id']
+        $car_id
     ]);
 
 
@@ -117,34 +152,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // تحديث بيانات العربية
         // ======================================
 
-        $update = "UPDATE cars
-                   SET
-                        make = ?,
-                        model = ?,
-                        model_year = ?,
-                        color = ?,
-                        plate_number = ?,
-                        daily_rent = ?,
-                        image = ?
-                   WHERE
-                        id = ?
-                        AND owner_id = ?";
+        $update = "
+        UPDATE cars
+        SET
+        brand = ?,
+        model = ?,
+        plate_number = ?,
+        year = ?,
+        color = ?,
+        location = ?,
+        mileage = ?,
+        price_per_day = ?,
+        fuel_type = ?,
+        transmission = ?,
+        seats = ?,
+        description = ?,
+        image = ?
+        WHERE id = ?
+        AND owner_id = ?
+    ";
 
 
         $conn->execute_query($update, [
 
-            $car_make,
-            $car_model,
-            $car_model_year,
-            $car_color,
-            $car_plate_number,
-            $car_daily_rent,
-            $car_image,
+        $car_brand,
+        $car_model,
+        $car_plate_number,
+        $car_year,
+        $car_color,
+        $car_location,
+        $car_mileage,
+        $car_price,
+        $car_fuel_type,
+        $car_transmission,
+        $car_seats,
+        $car_description,
+        $car_image,
 
-            $car_id,
-            1          // استبدلها بعدين بـ $_SESSION['owner_id']
+        $car_id,
+        $owner_id
 
-        ]);
+    ]);
 
 
         header("Location: ShowOwnerCars.php");
@@ -266,32 +314,33 @@ label {
 
 
 
-input {
-
+input,
+select,
+textarea {
     width: 100%;
-
-    height: 42px;
-
     border: 1px solid #ddd;
-
     border-radius: 8px;
-
     padding: 10px 15px;
-
     margin-bottom: 18px;
-
     font-size: 14px;
+}
 
+input,
+select {
+    height: 42px;
+}
+
+textarea {
+    resize: vertical;
 }
 
 
 
-input:focus {
-
+input:focus,
+select:focus,
+textarea:focus {
     outline: none;
-
     border-color: #6c63ff;
-
 }
 
 
@@ -407,125 +456,188 @@ Update your car information below.
 
 
 <form method="POST" enctype="multipart/form-data">
-    <label>Car Make *</label>
 
-<input 
-type="text"
-name="car_make"
-value="<?= $car['make'] ?>"
-required>
+    <label>Car Brand *</label>
 
-
-
-<label>Car Model *</label>
-
-<input 
-type="text"
-name="car_model"
-value="<?= $car['model'] ?>"
-required>
-
-
-
-<div class="row">
-
-    <div>
-
-        <label>Model Year *</label>
-
-        <input 
-        type="number"
-        name="car_model_year"
-        value="<?= $car['model_year'] ?>"
-        min="1900"
-        required>
-
-    </div>
-
-
-
-    <div>
-
-        <label>Color *</label>
-
-        <input 
+    <input
         type="text"
-        name="car_color"
-        value="<?= $car['color'] ?>"
+        name="car_brand"
+        value="<?= htmlspecialchars($car['brand']) ?>"
         required>
+
+
+    <label>Car Model *</label>
+
+    <input
+        type="text"
+        name="car_model"
+        value="<?= htmlspecialchars($car['model']) ?>"
+        required>
+
+
+    <label>Plate Number *</label>
+
+    <input
+        type="text"
+        name="car_plate_number"
+        value="<?= htmlspecialchars($car['plate_number']) ?>"
+        required>
+
+
+    <div class="row">
+
+        <div>
+
+            <label>Model Year *</label>
+
+            <input
+                type="number"
+                name="car_year"
+                value="<?= htmlspecialchars($car['year']) ?>"
+                min="1900"
+                max="<?= date('Y') + 1 ?>"
+                required>
+
+        </div>
+
+
+        <div>
+
+            <label>Color *</label>
+
+            <input
+                type="text"
+                name="car_color"
+                value="<?= htmlspecialchars($car['color']) ?>"
+                required>
+
+        </div>
 
     </div>
 
 
-</div>
+    <label>Location *</label>
+
+    <input
+        type="text"
+        name="car_location"
+        value="<?= htmlspecialchars($car['location']) ?>"
+        required>
 
 
+    <div class="row">
+
+        <div>
+
+            <label>Mileage (KM) *</label>
+
+            <input
+                type="number"
+                name="car_mileage"
+                value="<?= (int)$car['mileage'] ?>"
+                min="0"
+                required>
+
+        </div>
 
 
-<label>Plate Number *</label>
+        <div>
 
-<input 
-type="text"
-name="car_plate_number"
-value="<?= $car['plate_number'] ?>"
-required>
+            <label>Seats *</label>
 
+            <input
+                type="number"
+                name="car_seats"
+                value="<?= (int)$car['seats'] ?>"
+                min="1"
+                max="20"
+                required>
 
+        </div>
 
-
-<label>Daily Rent Price *</label>
-
-<input 
-type="number"
-name="car_daily_rent"
-value="<?= $car['daily_rent'] ?>"
-min="0"
-required>
+    </div>
 
 
+    <label>Fuel Type *</label>
+
+    <select name="car_fuel_type" required>
+
+        <option value="petrol"
+            <?= $car['fuel_type'] === 'petrol' ? 'selected' : '' ?>>
+            Petrol
+        </option>
+
+        <option value="diesel"
+            <?= $car['fuel_type'] === 'diesel' ? 'selected' : '' ?>>
+            Diesel
+        </option>
+
+        <option value="electric"
+            <?= $car['fuel_type'] === 'electric' ? 'selected' : '' ?>>
+            Electric
+        </option>
+
+    </select>
 
 
+    <label>Transmission *</label>
 
-<label>Current Car Image</label>
+    <select name="car_transmission" required>
 
+        <option value="automatic"
+            <?= $car['transmission'] === 'automatic' ? 'selected' : '' ?>>
+            Automatic
+        </option>
 
-<div class="current-image">
+        <option value="manual"
+            <?= $car['transmission'] === 'manual' ? 'selected' : '' ?>>
+            Manual
+        </option>
 
-
-<img src="<?= $car['image'] ?>" 
-     alt="Car Image">
-
-
-</div>
-
-
-
-
-
-<label>Change Image (Optional)</label>
+    </select>
 
 
-<input 
+    <label>Price Per Day (EGP) *</label>
 
-type="file"
-
-name="car_image"
-
-class="file-input"
-
-accept="image/*">
-
-
+    <input
+        type="number"
+        name="car_price_per_day"
+        value="<?= htmlspecialchars($car['price_per_day']) ?>"
+        min="1"
+        step="0.01"
+        required>
 
 
+    <label>Description</label>
 
-<button type="submit">
-
-Update Car
-
-</button>
+    <textarea
+        name="car_description"
+        rows="4"><?= htmlspecialchars($car['description'] ?? '') ?></textarea>
 
 
+    <label>Current Car Image</label>
+
+    <div class="current-image">
+
+        <img
+            src="<?= htmlspecialchars($car['image']) ?>"
+            alt="Car Image">
+
+    </div>
+
+
+    <label>Change Image (Optional)</label>
+
+    <input
+        type="file"
+        name="car_image"
+        class="file-input"
+        accept="image/*">
+
+
+    <button type="submit">
+        Update Car
+    </button>
 
 </form>
 

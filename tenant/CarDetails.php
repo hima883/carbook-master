@@ -1,6 +1,10 @@
 <?php
 
-require_once '../mysql/db_connect.php';
+require_once '../config/auth.php';
+
+require_login('../login.php');
+
+$user_id = $_SESSION['user_id'];
 
 
 // =====================================
@@ -14,7 +18,11 @@ if (!isset($_GET['car_id'])) {
 }
 
 
-$car_id = $_GET['car_id'];
+$car_id = (int) $_GET['car_id'];
+
+if ($car_id <= 0) {
+    die("Invalid Car ID");
+}
 
 
 
@@ -23,23 +31,20 @@ $car_id = $_GET['car_id'];
 // =====================================
 
 $query = "
-
 SELECT
-
-cars.*,
-
-owners.name AS owner_name,
-
-owners.phone AS owner_phone
+    cars.*,
+    users.name AS owner_name,
+    users.phone AS owner_phone
 
 FROM cars
 
 INNER JOIN owners
+    ON cars.owner_id = owners.user_id
 
-ON cars.owner_id = owners.id
+INNER JOIN users
+    ON owners.user_id = users.id
 
 WHERE cars.id = ?
-
 ";
 
 
@@ -296,7 +301,7 @@ body{
 
 <div class="image-section">
 
-    <img src="<?= $car['image'] ?>" alt="Car Image">
+    <img src="<?= htmlspecialchars($car['image']) ?>" alt="Car Image">
 
 </div>
 
@@ -307,7 +312,7 @@ body{
 
 <h1 class="car-title">
 
-    <?= $car['make'] . " " . $car['model'] ?>
+    <?= htmlspecialchars($car['brand'] . " " . $car['model']) ?>
 
 </h1>
 
@@ -317,7 +322,7 @@ body{
 
     <strong>Model Year:</strong>
 
-    <?= $car['model_year'] ?>
+    <?= $car['year'] ?>
 
 </div>
 
@@ -331,6 +336,30 @@ body{
 
 </div>
 
+<div class="info">
+    <strong>Location:</strong>
+    <?= htmlspecialchars($car['location']) ?>
+</div>
+
+<div class="info">
+    <strong>Mileage:</strong>
+    <?= number_format((int)$car['mileage']) ?> KM
+</div>
+
+<div class="info">
+    <strong>Fuel Type:</strong>
+    <?= htmlspecialchars(ucfirst($car['fuel_type'])) ?>
+</div>
+
+<div class="info">
+    <strong>Transmission:</strong>
+    <?= htmlspecialchars(ucfirst($car['transmission'])) ?>
+</div>
+
+<div class="info">
+    <strong>Seats:</strong>
+    <?= (int)$car['seats'] ?>
+</div>
 
 
 <div class="info">
@@ -355,12 +384,20 @@ body{
 
 <div class="price">
 
-    <?= number_format($car['daily_rent'],2) ?>
+    <?= number_format($car['price_per_day'], 2) ?>
 
     EGP / Day
 
 </div>
 
+<?php if (!empty($car['description'])): ?>
+
+<div class="info" style="margin-top:20px;">
+    <strong>Description:</strong><br><br>
+    <?= nl2br(htmlspecialchars($car['description'])) ?>
+</div>
+
+<?php endif; ?>
 
 
 
@@ -378,7 +415,7 @@ Owner Information
 
     <strong>Name:</strong>
 
-    <?= $car['owner_name'] ?>
+    <?= htmlspecialchars($car['owner_name']) ?>
 
 </div>
 
@@ -388,7 +425,7 @@ Owner Information
 
     <strong>Phone:</strong>
 
-    <?= $car['owner_phone'] ?>
+    <?= htmlspecialchars($car['owner_phone']) ?>
 
 </div>
 
@@ -400,15 +437,31 @@ Owner Information
 
 
 
-<a 
+<?php if ($car['status'] === 'available'): ?>
 
-href="BookCar.php?car_id=<?=$car['id'] ?>"
+    <a
+        href="BookCar.php?car_id=<?= (int)$car['id'] ?>"
+        class="book-btn">
 
-class="book-btn">
+        Book Now
 
-    Book Now
+    </a>
 
-</a>
+<?php else: ?>
+
+    <div style="
+        margin-top:30px;
+        padding:14px;
+        background:#dc3545;
+        color:white;
+        text-align:center;
+        border-radius:10px;
+        font-weight:bold;
+    ">
+        This car is currently unavailable
+    </div>
+
+<?php endif; ?>
 
 
 

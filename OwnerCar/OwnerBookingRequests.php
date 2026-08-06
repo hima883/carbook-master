@@ -1,15 +1,39 @@
 <?php
 
 require_once '../mysql/db_connect.php';
+require_once '../config/auth.php';
+
+require_login('../login.php');
+
+// =======================================
+// Get Logged-in Owner
+// =======================================
+
+$user_id = $_SESSION['user_id'];
 
 
 // =======================================
-// Owner ID
+// Make Sure User Is An Owner
 // =======================================
 
-$owner_id = 1;
+$check_owner = $conn->prepare("
+    SELECT user_id
+    FROM owners
+    WHERE user_id = ?
+");
 
-// Replace with $_SESSION['owner_id'] after creating Owner Login Session
+$check_owner->bind_param("i", $user_id);
+$check_owner->execute();
+
+$owner_result = $check_owner->get_result();
+
+if ($owner_result->num_rows === 0) {
+    die("You must be an owner to view booking requests.");
+}
+
+$check_owner->close();
+
+$owner_id = $user_id;
 
 
 
@@ -18,59 +42,46 @@ $owner_id = 1;
 // =======================================
 
 $query = "
-
 SELECT
 
-bookings.id AS booking_id,
+    bookings.id AS booking_id,
+    bookings.pickup_datetime,
+    bookings.return_datetime,
+    bookings.total_price,
+    bookings.daily_rent,
+    bookings.booking_status,
 
-bookings.pickup_datetime,
+    cars.id AS car_id,
+    cars.brand,
+    cars.model,
+    cars.image,
 
-bookings.return_datetime,
+    users.name,
+    users.phone,
 
-bookings.total_price,
-
-bookings.booking_status,
-
-cars.id AS car_id,
-
-cars.make,
-
-cars.model,
-
-cars.image,
-
-tenants.name,
-
-tenants.phone,
-
-tenants.driving_license,
-
-tenants.damages_count
+    tenants.driving_license,
+    tenants.damages_count
 
 FROM bookings
 
 INNER JOIN cars
-
-ON bookings.car_id = cars.id
+    ON bookings.car_id = cars.id
 
 INNER JOIN tenants
+    ON bookings.user_id = tenants.user_id
 
-ON bookings.tenant_license = tenants.driving_license
+INNER JOIN users
+    ON tenants.user_id = users.id
 
 WHERE
-
-cars.owner_id = ?
+    cars.owner_id = ?
 
 AND
-
-bookings.booking_status = 'pending'
+    bookings.booking_status = 'pending'
 
 ORDER BY
-
-tenants.damages_count ASC,
-
-bookings.id ASC
-
+    tenants.damages_count ASC,
+    bookings.id ASC
 ";
 
 
@@ -356,7 +367,7 @@ if ($requests->num_rows > 0) {
 
         <div class="car-title">
 
-            <?= $row['make'] . " " . $row['model'] ?>
+            <?= htmlspecialchars($row['brand'] . " " . $row['model']) ?>
 
         </div>
 
@@ -438,12 +449,16 @@ if ($requests->num_rows > 0) {
 
         </p>
 
+        
+
+        <p>
+        <strong>Daily Rent:</strong>
+        <?= number_format((float)$row['daily_rent'], 2) ?> EGP
+        </p>
+
         <div class="price">
-
-            <?= number_format($row['total_price'],2) ?>
-
-            EGP
-
+            Total:
+            <?= number_format((float)$row['total_price'], 2) ?> EGP
         </div>
 
         <div class="buttons">

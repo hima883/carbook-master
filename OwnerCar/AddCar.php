@@ -1,4 +1,30 @@
+<?php
 
+require_once '../config/auth.php';
+
+require_login('../login.php');
+
+$user_id = $_SESSION['user_id'];
+
+// Only owners can access this page
+$check_owner = $conn->prepare("
+    SELECT user_id
+    FROM owners
+    WHERE user_id = ?
+");
+
+$check_owner->bind_param("i", $user_id);
+$check_owner->execute();
+
+$owner_result = $check_owner->get_result();
+
+if ($owner_result->num_rows === 0) {
+    die("You must be an owner to add a car.");
+}
+
+$check_owner->close();
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,9 +87,10 @@
             color: #374151;
         }
 
-        input {
+        input,
+        select,
+        textarea {
             width: 100%;
-            height: 42px;
             border: 1px solid #ddd;
             border-radius: 8px;
             padding: 10px 15px;
@@ -71,10 +98,21 @@
             font-size: 14px;
         }
 
-        input:focus {
+        input,
+        select {
+            height: 42px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
             outline: none;
             border-color: #6c63ff;
-        }
+        }   
 
         .row {
             display: flex;
@@ -128,58 +166,147 @@
 
     <form action="StoreCarDataToDB.php" method="POST" enctype="multipart/form-data">
 
-        <label>Car Make *</label>
-        <input type="text" name="car_make" placeholder="Example: Toyota" required>
+    <!-- Brand -->
+    <label>Car Brand *</label>
+    <input type="text"
+           name="car_brand"
+           placeholder="Example: Toyota"
+           required>
 
-        <label>Car Model *</label>
-        <input type="text" name="car_model" placeholder="Example: Corolla" required>
 
-        <div class="row">
-            <div>
-                <label>Model Year *</label>
-                <input type="number"
-                       min = "1900" 
-                       name="car_model_year" 
-                       placeholder="2024"
-                       required>
-            </div>
+    <!-- Model -->
+    <label>Car Model *</label>
+    <input type="text"
+           name="car_model"
+           placeholder="Example: Corolla"
+           required>
 
-            <div>
-                <label>Color *</label>
-                <input type="text" 
-                       name="car_color"
-                       placeholder="Black"
-                       required>
-            </div>
+
+    <!-- Plate Number -->
+    <label>Plate Number *</label>
+    <input type="text"
+           name="car_plate_number"
+           placeholder="ABC-1234"
+           required>
+
+
+    <!-- Year + Color -->
+    <div class="row">
+
+        <div>
+            <label>Model Year *</label>
+
+            <input type="number"
+                   min="1900"
+                   max="<?= date('Y') + 1 ?>"
+                   name="car_year"
+                   placeholder="2024"
+                   required>
         </div>
 
-        <label>Plate Number *</label>
-        <input type="text"
-               name="car_plate_number"
-               placeholder="ABC-1234"
-               required>
+        <div>
+            <label>Color *</label>
 
-        <label>Daily Rent Price *</label>
-        <input type="number"
-               min="0"
-               name="car_daily_rent"
-               placeholder="Enter daily rent"
-               required>
+            <input type="text"
+                   name="car_color"
+                   placeholder="Black"
+                   required>
+        </div>
 
-        <label>Car Image *</label>
-
-        <input type="file"
-               name="car_image"
-               class="file-input"
-               accept="image/*"
-               required>
-
-        <button type="submit">
-            Add Car
-        </button>
+    </div>
 
 
-    </form>
+    <!-- Location -->
+    <label>Location *</label>
+
+    <input type="text"
+           name="car_location"
+           placeholder="Example: Cairo"
+           required>
+
+
+    <!-- Mileage + Seats -->
+    <div class="row">
+
+        <div>
+            <label>Mileage (KM) *</label>
+
+            <input type="number"
+                   min="0"
+                   name="car_mileage"
+                   placeholder="50000"
+                   required>
+        </div>
+
+        <div>
+            <label>Seats *</label>
+
+            <input type="number"
+                   min="1"
+                   max="20"
+                   name="car_seats"
+                   placeholder="5"
+                   required>
+        </div>
+
+    </div>
+
+
+    <!-- Fuel Type -->
+    <label>Fuel Type *</label>
+
+    <select name="car_fuel_type" required>
+        <option value="">Select Fuel Type</option>
+        <option value="petrol">Petrol</option>
+        <option value="diesel">Diesel</option>
+        <option value="electric">Electric</option>
+    </select>
+
+
+    <!-- Transmission -->
+    <label>Transmission *</label>
+
+    <select name="car_transmission" required>
+        <option value="">Select Transmission</option>
+        <option value="automatic">Automatic</option>
+        <option value="manual">Manual</option>
+    </select>
+
+
+    <!-- Price -->
+    <label>Price Per Day (EGP) *</label>
+
+    <input type="number"
+           min="1"
+           step="0.01"
+           name="car_price_per_day"
+           placeholder="Example: 1500"
+           required>
+
+
+    <!-- Description -->
+    <label>Description</label>
+
+    <textarea name="car_description"
+              rows="4"
+              placeholder="Write some information about the car..."></textarea>
+
+
+    <!-- Image -->
+    <label>Car Image *</label>
+
+    <input type="file"
+           name="car_image"
+           class="file-input"
+           accept="image/*"
+           required>
+
+
+    <button type="submit">
+        Add Car
+    </button>
+
+</form>
 
 </div>
 

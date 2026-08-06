@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 05, 2026 at 11:46 PM
+-- Generation Time: Aug 06, 2026 at 03:25 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -33,10 +33,18 @@ CREATE TABLE `bookings` (
   `car_id` int(10) UNSIGNED NOT NULL,
   `pickup_datetime` datetime NOT NULL,
   `return_datetime` datetime NOT NULL,
+  `daily_rent` decimal(10,2) DEFAULT NULL,
   `total_price` decimal(10,2) NOT NULL,
-  `booking_status` enum('pending','completed','cancelled') NOT NULL DEFAULT 'pending',
+  `booking_status` enum('pending','approved','completed','cancelled') NOT NULL DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `bookings`
+--
+
+INSERT INTO `bookings` (`id`, `user_id`, `car_id`, `pickup_datetime`, `return_datetime`, `daily_rent`, `total_price`, `booking_status`, `created_at`) VALUES
+(1, 2, 2, '2026-08-06 03:59:00', '2026-08-07 03:59:00', 1500.00, 1500.00, 'approved', '2026-08-06 00:59:27');
 
 -- --------------------------------------------------------
 
@@ -49,6 +57,7 @@ CREATE TABLE `cars` (
   `owner_id` int(10) UNSIGNED DEFAULT NULL,
   `brand` varchar(100) NOT NULL,
   `model` varchar(100) DEFAULT NULL,
+  `plate_number` varchar(30) DEFAULT NULL,
   `year` year(4) DEFAULT NULL,
   `color` varchar(50) DEFAULT NULL,
   `location` varchar(150) DEFAULT NULL,
@@ -57,11 +66,18 @@ CREATE TABLE `cars` (
   `fuel_type` enum('petrol','diesel','electric') NOT NULL,
   `transmission` enum('automatic','manual') NOT NULL,
   `seats` tinyint(3) UNSIGNED DEFAULT NULL,
-  `status` enum('available','unavailable') NOT NULL DEFAULT 'available',
+  `status` enum('available','rented','unavailable') NOT NULL DEFAULT 'available',
   `image` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `cars`
+--
+
+INSERT INTO `cars` (`id`, `owner_id`, `brand`, `model`, `plate_number`, `year`, `color`, `location`, `mileage`, `price_per_day`, `fuel_type`, `transmission`, `seats`, `status`, `image`, `description`, `created_at`) VALUES
+(2, 3, 'Toyota', 'corolla', 'ABC-123', '2024', 'Black', 'Cairo', 50000, 1500.00, 'petrol', 'automatic', 5, 'rented', '../images/CarOwner/1785976897_68dd8beb.jpeg', '', '2026-08-06 00:41:37');
 
 -- --------------------------------------------------------
 
@@ -73,6 +89,13 @@ CREATE TABLE `owners` (
   `user_id` int(10) UNSIGNED NOT NULL,
   `balance` decimal(12,2) NOT NULL DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `owners`
+--
+
+INSERT INTO `owners` (`user_id`, `balance`) VALUES
+(3, 0.00);
 
 -- --------------------------------------------------------
 
@@ -90,6 +113,13 @@ CREATE TABLE `payments` (
   `paid_at` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `payments`
+--
+
+INSERT INTO `payments` (`id`, `booking_id`, `amount`, `payment_method`, `payment_status`, `transaction_id`, `paid_at`, `created_at`) VALUES
+(1, 1, 1500.00, 'cash', 'pending', NULL, NULL, '2026-08-06 01:16:50');
 
 -- --------------------------------------------------------
 
@@ -131,7 +161,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `role`, `created_at`) VALUES
-(2, 'hima3', 'himah5947@gmail.com', '$2y$10$xkbaeJ/XMNXjqj1oXNEX6u4pVJDshWBNu0wj99pHI8Uf1A//7pDwK', '01270713176', 'renter', '2026-08-05 21:26:15');
+(2, 'hima3', 'himah5947@gmail.com', '$2y$10$xkbaeJ/XMNXjqj1oXNEX6u4pVJDshWBNu0wj99pHI8Uf1A//7pDwK', '01270713176', 'renter', '2026-08-05 21:26:15'),
+(3, 'hima', 'himah1@proton.me', '$2y$10$zOGL9jxD1ri/RIg9HLMspeGCUf0z8Lq3IaiuLJ0w92URQUESHMUxm', '01270713176', 'owner', '2026-08-06 00:03:44');
 
 --
 -- Indexes for dumped tables
@@ -150,6 +181,7 @@ ALTER TABLE `bookings`
 --
 ALTER TABLE `cars`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `plate_number` (`plate_number`),
   ADD KEY `fk_cars_owner` (`owner_id`);
 
 --
@@ -187,25 +219,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `cars`
 --
 ALTER TABLE `cars`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables

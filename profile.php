@@ -17,6 +17,12 @@ $stmt = $pdo->prepare('SELECT id, name, email, phone, role, created_at FROM user
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
+if (!$user) {
+    session_destroy();
+    header('Location: login.php');
+    exit;
+}
+
 // --- Fetch tenant data ---
 $tenant = null;
 
@@ -163,14 +169,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
 
 // --- Fetch this user's bookings (with car details) ---
 $bookings_stmt = $pdo->prepare(
-    'SELECT b.id, b.pickup_datetime, b.return_datetime, b.total_price, b.booking_status,
-            c.brand, c.model
+    'SELECT
+        b.id,
+        b.pickup_datetime,
+        b.return_datetime,
+        b.total_price,
+        b.booking_status,
+        c.brand,
+        c.model
      FROM bookings b
      JOIN cars c ON c.id = b.car_id
      WHERE b.user_id = ?
-     ORDER BY b.created_at DESC
+     ORDER BY b.id DESC
      LIMIT 10'
 );
+
 $bookings_stmt->execute([$user_id]);
 $bookings = $bookings_stmt->fetchAll();
 
@@ -182,6 +195,7 @@ $role_labels = [
 
 $status_badge = [
     'pending'   => 'badge-warning',
+    'approved'  => 'badge-primary',
     'completed' => 'badge-success',
     'cancelled' => 'badge-danger',
 ];
@@ -317,21 +331,41 @@ $status_badge = [
                 <li><span class="label">Email</span> <span><?= htmlspecialchars($user['email']) ?></span></li>
                 <li><span class="label">Phone</span> <span><?= htmlspecialchars($user['phone'] ?: '—') ?></span></li>
                 <li><span class="label">Member since</span> <span><?= htmlspecialchars(date('M d, Y', strtotime($user['created_at']))) ?></span></li>
+                <?php if ($user['role'] === 'owner' || $user['role'] === 'both'): ?>
+
+                  <li>
+                    <span class="label">Balance</span>
+
+                    <span>
+                      <?= number_format((float)($owner['balance'] ?? 0), 2) ?> EGP
+                    </span>
+                  </li>
+
+                <?php endif; ?>
+
+
+                <?php if ($user['role'] === 'renter' || $user['role'] === 'both'): ?>
+
+              <li>
+                <span class="label">Driving License</span>
+
+                <span>
+                  <?= htmlspecialchars($tenant['driving_license'] ?? 'Not added') ?>
+                </span>
+              </li>
+
+              <li>
+                <span class="label">Previous Damages</span>
+
+                  <span>
+                    <?= (int)($tenant['damages_count'] ?? 0) ?>
+                  </span>
+                </li>
+
+              <?php endif; ?>
               </ul>
             </div>
           </div>
-
-          <?php if ($user['role'] === 'owner' || $user['role'] === 'both'): ?>
-
-              <li>
-            <span class="label">Balance</span>
-
-            <span>
-              $<?= number_format((float)($owner['balance'] ?? 0), 2) ?> EGP
-            </span>
-            </li>
-
-          <?php endif; ?>
 
           <!-- Right: Edit forms + bookings -->
           <div class="col-md-8">
@@ -427,6 +461,7 @@ $status_badge = [
             </div>
             <a href="logout.php" class="btn btn-danger btn-block mt-4"><span class="icon-sign-out"></span> Logout</a>
 
+            <?php if ($user['role'] === 'renter' || $user['role'] === 'both'): ?>
             <div class="profile-card">
               <h4 class="mb-4">Recent Bookings</h4>
               <?php if (empty($bookings)): ?>
@@ -461,8 +496,9 @@ $status_badge = [
                   </table>
                 </div>
               <?php endif; ?>
+            
             </div>
-
+          <?php endif; ?>
           </div>
         </div>
       </div>

@@ -1,15 +1,31 @@
 <?php
 
 require_once '../mysql/db_connect.php';
+require_once '../config/auth.php';
 
+require_login('../login.php');
 
-// =======================================
-// Owner ID
-// =======================================
+$user_id = $_SESSION['user_id'];
 
-$owner_id = 1;
+// Make sure logged-in user is an owner
+$check_owner = $conn->prepare("
+    SELECT user_id
+    FROM owners
+    WHERE user_id = ?
+");
 
-// Replace with $_SESSION['owner_id'] after creating Owner Login Session
+$check_owner->bind_param("i", $user_id);
+$check_owner->execute();
+
+$owner_result = $check_owner->get_result();
+
+if ($owner_result->num_rows === 0) {
+    die("You must be an owner to confirm payments.");
+}
+
+$check_owner->close();
+
+$owner_id = $user_id;
 
 
 
@@ -24,7 +40,7 @@ if(!isset($_GET['booking_id'])){
 }
 
 
-$booking_id = $_GET['booking_id'];
+$booking_id = (int) $_GET['booking_id'];
 
 
 
@@ -34,70 +50,42 @@ $booking_id = $_GET['booking_id'];
 // =======================================
 
 $get_payment = "
-
 SELECT
+    payments.id AS payment_id,
+    payments.amount,
+    payments.payment_status,
 
-payments.id AS payment_id,
+    bookings.booking_status,
+    bookings.pickup_datetime,
+    bookings.car_id,
 
-payments.amount,
-
-payments.payment_status,
-
-bookings.booking_status,
-
-bookings.pickup_datetime,
-
-bookings.car_id,
-
-cars.owner_id
+    cars.owner_id
 
 FROM payments
 
 INNER JOIN bookings
-
-ON payments.booking_id = bookings.id
+    ON payments.booking_id = bookings.id
 
 INNER JOIN cars
+    ON bookings.car_id = cars.id
 
-ON bookings.car_id = cars.id
-
-WHERE
-
-payments.booking_id = ?
-
+WHERE payments.booking_id = ?
+AND cars.owner_id = ?
 ";
 
 
 
-$result = $conn->execute_query($get_payment,[
-
-    $booking_id
-
+$result = $conn->execute_query($get_payment, [
+    $booking_id,
+    $owner_id
 ]);
 
 
-
-if($result->num_rows == 0){
-
-    die("Payment Record Not Found");
-
+if ($result->num_rows === 0) {
+    die("Payment not found or you are not allowed to confirm it.");
 }
-
 
 $payment = $result->fetch_assoc();
-
-
-// =======================================
-// Check Owner Permission
-// =======================================
-
-
-if($payment['owner_id'] != $owner_id){
-
-    die("You are not allowed to confirm this payment");
-
-}
-
 
 // =======================================
 // Check Booking Status
@@ -148,46 +136,39 @@ try {
 
     // Update Payment Status
 
-    $update_payment = "
-
+$update_payment = "
     UPDATE payments
-
     SET payment_status = 'paid'
-
     WHERE id = ?
+    AND payment_status = 'pending'
+";
 
-    ";
+$conn->execute_query($update_payment, [
+    $payment['payment_id']
+]);
 
-
-    $conn->execute_query($update_payment,[
-
-        $payment['payment_id']
-
-    ]);
+if ($conn->affected_rows !== 1) {
+    throw new Exception("Payment already confirmed.");
+}
 
 
 
     // Update Owner Balance
 
     $update_balance = "
-
-    UPDATE owners
-
-    SET balance = balance + ?
-
-    WHERE id = ?
-
+        UPDATE owners
+        SET balance = balance + ?
+        WHERE user_id = ?
     ";
 
-
-    $conn->execute_query($update_balance,[
-
+    $conn->execute_query($update_balance, [
         $payment['amount'],
-
         $owner_id
-
     ]);
 
+    if ($conn->affected_rows !== 1) {
+        throw new Exception("Owner balance update failed.");
+    }
 
     // Save Changes
 
@@ -212,16 +193,13 @@ catch(Exception $e){
 // =======================================
 
 echo "
-
 <script>
-
-alert('Payment confirmed successfully.');
-
-window.location='BookingRequests.php';
-
+    alert('Payment confirmed successfully.');
+    window.location='OwnerBookingRequests.php';
 </script>
-
 ";
+
+exit();
 
 
 ?>

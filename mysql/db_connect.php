@@ -1,7 +1,7 @@
 <?php
 
 $host = "localhost";
-$dbname = "carbook_database";
+$dbname = "carbook_db";
 $username = "root";
 $password = "";
 

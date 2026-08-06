@@ -1,15 +1,38 @@
 <?php
 
 require_once '../mysql/db_connect.php';
+require_once '../config/auth.php';
+
+require_login('../login.php');
+
+// =======================================
+// Logged-in User
+// =======================================
+
+$user_id = $_SESSION['user_id'];
+$owner_id = $user_id;
 
 
 // =======================================
-// Owner ID
+// Make Sure User Is An Owner
 // =======================================
 
-$owner_id = 1;
+$check_owner = $conn->prepare("
+    SELECT user_id
+    FROM owners
+    WHERE user_id = ?
+");
 
-// Replace with $_SESSION['owner_id'] after creating Owner Login Session
+$check_owner->bind_param("i", $user_id);
+$check_owner->execute();
+
+$owner_result = $check_owner->get_result();
+
+if ($owner_result->num_rows === 0) {
+    die("You must be an owner to view this page.");
+}
+
+$check_owner->close();
 
 
 
@@ -19,39 +42,27 @@ $owner_id = 1;
 
 
 $get_owner = "
-
 SELECT
-
-name,
-
-email,
-
-phone,
-
-balance
+    users.name,
+    users.email,
+    users.phone,
+    owners.balance
 
 FROM owners
 
-WHERE id = ?
+INNER JOIN users
+    ON owners.user_id = users.id
 
+WHERE owners.user_id = ?
 ";
 
-
-$owner_result = $conn->execute_query($get_owner,[
-
+$owner_result = $conn->execute_query($get_owner, [
     $owner_id
-
 ]);
 
-
-
-if($owner_result->num_rows == 0){
-
+if ($owner_result->num_rows === 0) {
     die("Owner Not Found");
-
 }
-
-
 
 $owner = $owner_result->fetch_assoc();
 
@@ -102,6 +113,8 @@ SELECT
 SUM(booking_status = 'pending') AS pending_bookings,
 
 SUM(booking_status = 'approved') AS approved_bookings,
+
+SUM(booking_status = 'completed') AS completed_bookings,
 
 SUM(booking_status = 'cancelled') AS cancelled_bookings,
 
@@ -436,9 +449,13 @@ a{
 
 <div class="box">
 
-<h3>Approved</h3>
+    <h3>Completed</h3>
 
-<div class="number">
+    <div class="number">
+        <?php echo $booking_stats['completed_bookings']; ?>
+    </div>
+
+</div>
 
 <?php echo $booking_stats['approved_bookings']; ?>
 

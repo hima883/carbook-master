@@ -1,6 +1,9 @@
 <?php
 
 require_once '../mysql/db_connect.php';
+require_once '../config/auth.php';
+
+require_login('../login.php');
 
 
 // =========================================
@@ -8,23 +11,21 @@ require_once '../mysql/db_connect.php';
 // =========================================
 
 $query = "
-
 SELECT
-
-cars.*,
-
-owners.name AS owner_name
+    cars.*,
+    users.name AS owner_name
 
 FROM cars
 
 INNER JOIN owners
+    ON cars.owner_id = owners.user_id
 
-ON cars.owner_id = owners.id
+INNER JOIN users
+    ON owners.user_id = users.id
 
 WHERE cars.status = 'available'
 
 ORDER BY cars.id DESC
-
 ";
 
 
@@ -258,13 +259,13 @@ if ($cars->num_rows > 0) {
 
 <div class="card">
 
-    <img src="<?= $row['image'] ?>" alt="Car Image">
+    <img src="<?= htmlspecialchars($row['image']) ?>" alt="Car Image">
 
     <div class="info">
 
         <div class="car-name">
 
-            <?= $row['make'] . " " . $row['model'] ?>
+            <?= htmlspecialchars($row['brand'] . " " . $row['model']) ?>
 
         </div>
 
@@ -272,7 +273,7 @@ if ($cars->num_rows > 0) {
 
             <strong>Model Year:</strong>
 
-            <?= $row['model_year'] ?>
+            <?= htmlspecialchars($row['year']) ?>
 
         </p>
 
@@ -280,23 +281,25 @@ if ($cars->num_rows > 0) {
 
             <strong>Color:</strong>
 
-            <?= $row['color'] ?>
+            <?= htmlspecialchars($row['color']) ?>
 
+        </p>
+        <p>
+            <strong>Location:</strong>
+            <?= htmlspecialchars($row['location']) ?>
         </p>
 
         <p class="owner">
 
             <strong>Owner:</strong>
 
-            <?= $row['owner_name'] ?>
+            <?= htmlspecialchars($row['owner_name']) ?>
 
         </p>
 
         <div class="price">
 
-            <?= number_format($row['daily_rent'],2) ?>
-
-            EGP / Day
+            <?= number_format((float)$row['price_per_day'], 2) ?> EGP / Day
 
         </div>
 

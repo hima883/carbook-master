@@ -37,9 +37,55 @@
 
 
 require_once '../mysql/db_connect.php';
+require_once '../config/auth.php';
 
-$stmt = "SELECT * FROM cars WHERE owner_id = ?";
-$owner_cars = $conn->execute_query($stmt, [1]); // استبدل 1 بـ $_SESSION['owner_id']
+require_login('../login.php');
+
+// ========================================
+// Get logged-in user
+// ========================================
+
+$user_id = $_SESSION['user_id'];
+
+
+// ========================================
+// Check that the user is an Owner
+// ========================================
+
+$check_owner = $conn->prepare("
+    SELECT user_id
+    FROM owners
+    WHERE user_id = ?
+");
+
+$check_owner->bind_param("i", $user_id);
+$check_owner->execute();
+
+$owner_result = $check_owner->get_result();
+
+if ($owner_result->num_rows === 0) {
+    die("You must be an owner to view your cars.");
+}
+
+$check_owner->close();
+
+
+// ========================================
+// Get this owner's cars only
+// ========================================
+
+$owner_id = $user_id;
+
+$stmt = "
+    SELECT *
+    FROM cars
+    WHERE owner_id = ?
+    ORDER BY id DESC
+";
+
+$owner_cars = $conn->execute_query($stmt, [
+    $owner_id
+]);
 ?>
 
 <div class="container mt-4">
@@ -58,11 +104,11 @@ $owner_cars = $conn->execute_query($stmt, [1]); // استبدل 1 بـ $_SESSION
                     <div class="card-body">
 
                         <h5 class="card-title fw-bold">
-                            <?= $row['make'] . " " . $row['model'] ?>
+                            <?= htmlspecialchars($row['brand'] . " " . $row['model']) ?>
                         </h5>
 
                         <p class="text-muted mb-2">
-                            <?= "Model Year: " . $row['model_year'] ?>
+                            <?= "Model Year: " . htmlspecialchars($row['year']) ?>
                         </p>
 
                         <p class="mb-1">
@@ -76,7 +122,7 @@ $owner_cars = $conn->execute_query($stmt, [1]); // استبدل 1 بـ $_SESSION
                         </p>
 
                         <h5 class="text-success mt-3">
-                            <?= "Daily Rent: " . $row['daily_rent'] ?>
+                            <?= "Daily Rent: " . number_format((float)$row['price_per_day'], 2) ?>
                             <small class="text-muted fs-6">/ Day</small>
                         </h5>
 
