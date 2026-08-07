@@ -38,8 +38,33 @@
 
 require_once '../mysql/db_connect.php';
 
-$stmt = "SELECT * FROM cars WHERE owner_id = ?";
-$owner_cars = $conn->execute_query($stmt, [1]); // استبدل 1 بـ $_SESSION['owner_id']
+session_start();
+
+if(!isset($_SESSION['owner_id'])){
+
+    header("Location: auth/OwnerLogin.php");
+    exit();
+
+}
+
+$owner_id = $_SESSION['owner_id'];
+
+$stmt = "
+
+SELECT *
+
+FROM cars
+
+WHERE owner_id = ?
+
+";
+
+$owner_cars = $conn->execute_query($stmt,[
+
+    $owner_id
+
+]);
+
 ?>
 
 <div class="container mt-4">

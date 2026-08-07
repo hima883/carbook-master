@@ -3,6 +3,17 @@
 require_once '../mysql/db_connect.php';
 
 
+session_start();
+
+if(!isset($_SESSION['owner_id'])){
+
+    header("Location: auth/OwnerLogin.php");
+    exit();
+
+}
+
+$owner_id = $_SESSION['owner_id'];
+
 // ===============================
 // التأكد من وجود car_id
 // ===============================
@@ -20,9 +31,12 @@ $car_id = $_GET['car_id'];
 
 $stmt = "SELECT * FROM cars WHERE id = ? AND owner_id = ?";
 
-$result = $conn->execute_query($stmt, [
+$result = $conn->execute_query($stmt,[
+
     $car_id,
-    1   // استبدلها بعدين بـ $_SESSION['owner_id']
+
+    $owner_id
+
 ]);
 
 if ($result->num_rows == 0) {
@@ -96,11 +110,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                    AND id != ?
                    AND owner_id = ?";
 
-    $check = $conn->execute_query($checkPlate, [
-        $car_plate_number,
-        $car_id,
-        1      // استبدلها بعدين بـ $_SESSION['owner_id']
-    ]);
+$check = $conn->execute_query($checkPlate,[
+
+    $car_plate_number,
+
+    $car_id,
+
+    $owner_id
+
+]);
 
 
     if ($check->num_rows > 0) {
@@ -131,8 +149,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         AND owner_id = ?";
 
 
-        $conn->execute_query($update, [
-
+        $conn->execute_query($update,[
+        
             $car_make,
             $car_model,
             $car_model_year,
@@ -140,12 +158,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $car_plate_number,
             $car_daily_rent,
             $car_image,
-
+        
             $car_id,
-            1          // استبدلها بعدين بـ $_SESSION['owner_id']
-
+        
+            $owner_id
+        
         ]);
-
 
         header("Location: ShowOwnerCars.php");
         exit();

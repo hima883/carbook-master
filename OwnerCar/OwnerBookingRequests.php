@@ -2,15 +2,20 @@
 
 require_once '../mysql/db_connect.php';
 
+session_start();
+
+if(!isset($_SESSION['owner_id'])){
+
+    header("Location: auth/OwnerLogin.php");
+    exit();
+
+}
 
 // =======================================
 // Owner ID
 // =======================================
 
-$owner_id = 1;
-
-// Replace with $_SESSION['owner_id'] after creating Owner Login Session
-
+$owner_id = $_SESSION['owner_id'];
 
 
 // =======================================

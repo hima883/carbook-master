@@ -2,7 +2,18 @@
 
 require_once "../mysql/db_connect.php";
 
-$owner_id = 1; // Replace with $_SESSION['owner_id']
+session_start();
+
+if(!isset($_SESSION['owner_id'])){
+
+    header("Location: auth/OwnerLogin.php");
+    exit();
+
+}
+
+
+$owner_id = $_SESSION['owner_id'];
+
 
 if(!isset($_GET['booking_id'])){
 

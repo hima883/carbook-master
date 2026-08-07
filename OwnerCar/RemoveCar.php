@@ -2,6 +2,16 @@
 
 require_once '../mysql/db_connect.php';
 
+session_start();
+
+if(!isset($_SESSION['owner_id'])){
+
+    header("Location: auth/OwnerLogin.php");
+    exit();
+
+}
+
+$owner_id = $_SESSION['owner_id'];
 
 // =======================================
 // التأكد من وجود رقم العربية
@@ -27,12 +37,11 @@ $query = "SELECT *
           WHERE id = ?
           AND owner_id = ?";
 
-
-$car = $conn->execute_query($query, [
+$car = $conn->execute_query($query,[
 
     $car_id,
 
-    1        // استبدلها فيما بعد بـ $_SESSION['owner_id']
+    $owner_id
 
 ]);
 
@@ -114,11 +123,11 @@ $deleteQuery = "DELETE FROM cars
                 AND owner_id = ?";
 
 
-$conn->execute_query($deleteQuery, [
+$conn->execute_query($deleteQuery,[
 
     $car_id,
 
-    1      // استبدلها بعدين بـ $_SESSION['owner_id']
+    $owner_id
 
 ]);
 

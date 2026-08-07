@@ -3,6 +3,16 @@
 
 require_once '../mysql/db_connect.php' ; 
 
+session_start();
+
+if(!isset($_SESSION['owner_id'])){
+
+    header("Location: auth/OwnerLogin.php");
+    exit();
+
+}
+
+$owner_id = $_SESSION['owner_id'];
 
 //  بيانات الصورة من الفورم
 $imageName = str_replace(" ", "_", $_FILES['car_image']['name']);
@@ -21,7 +31,13 @@ if (move_uploaded_file($imageTmp, $target))
 
        // check if the car already exists in the database for the same owner
        $stmt = "SELECT * FROM cars WHERE owner_id = ? AND plate_number = ?";
-       $check = $conn->execute_query($stmt, [/*$_SESSION['user_id'] from signin of the owner*/ 1, $_POST['car_plate_number']]) ; 
+       $check = $conn->execute_query($stmt,[
+
+    $owner_id,
+
+    $_POST['car_plate_number']
+
+]);
 
        if ($check->num_rows > 0)
           {
@@ -32,7 +48,25 @@ if (move_uploaded_file($imageTmp, $target))
              $query = 'INSERT INTO cars (owner_id , make, model, model_year, color, plate_number, daily_rent, image)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)'; 
              
-             $conn->execute_query($query, [/*$_SESSION['user_id'] from signin of the owner*/ 1 , $_POST['car_make'], $_POST['car_model'], $_POST['car_model_year'], $_POST['car_color'], $_POST['car_plate_number'], $_POST['car_daily_rent'], $target]) ; 
+             $conn->execute_query($query,[
+
+                 $owner_id,
+             
+                 $_POST['car_make'],
+             
+                 $_POST['car_model'],
+             
+                 $_POST['car_model_year'],
+             
+                 $_POST['car_color'],
+             
+                 $_POST['car_plate_number'],
+             
+                 $_POST['car_daily_rent'],
+             
+                 $target
+             
+             ]);
           }
    
        echo "تم رفع وتخزين بيانات العربية بنجاح";
