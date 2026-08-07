@@ -2,15 +2,20 @@
 
 require_once '../mysql/db_connect.php';
 
+session_start();
+
+if(!isset($_SESSION['tenant_license'])){
+
+    header("Location: auth/TenantLogin.php");
+    exit();
+
+}
 
 // =======================================
 // Tenant License
 // =======================================
 
-$tenant_license = 1;
-
-// Replace with $_SESSION['tenant_license'] after creating Tenant Login Session
-
+$tenant_license = $_SESSION['tenant_license'];
 
 
 
