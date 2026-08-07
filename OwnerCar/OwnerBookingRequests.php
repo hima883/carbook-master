@@ -38,7 +38,7 @@ $owner_id = $user_id;
 
 
 // =======================================
-// Get Pending Booking Requests
+// Get Pending + Approved Booking Requests
 // =======================================
 
 $query = "
@@ -60,7 +60,9 @@ SELECT
     users.phone,
 
     tenants.driving_license,
-    tenants.damages_count
+    tenants.damages_count,
+
+    payments.payment_status
 
 FROM bookings
 
@@ -73,22 +75,22 @@ INNER JOIN tenants
 INNER JOIN users
     ON tenants.user_id = users.id
 
+LEFT JOIN payments
+    ON bookings.id = payments.booking_id
+
 WHERE
     cars.owner_id = ?
 
 AND
-    bookings.booking_status = 'pending'
+    bookings.booking_status IN ('pending', 'approved')
 
 ORDER BY
     tenants.damages_count ASC,
     bookings.id ASC
 ";
 
-
 $requests = $conn->execute_query($query, [
-
     $owner_id
-
 ]);
 
 ?>
@@ -324,7 +326,23 @@ body{
     box-shadow:0 5px 15px rgba(0,0,0,.15);
 
 }
+.status-message {
 
+    flex: 1;
+
+    text-align: center;
+
+    background: #6c757d;
+
+    color: white;
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    font-weight: bold;
+
+}
 </style>
 
 </head>
@@ -342,9 +360,7 @@ Booking Requests
 </h1>
 
 <p>
-
-Review pending booking requests from tenants.
-
+    Review and manage booking requests from tenants.
 </p>
 
 </div>
@@ -412,6 +428,24 @@ if ($requests->num_rows > 0) {
         </p>
 
         <p>
+    <strong>Booking Status:</strong>
+
+    <?= htmlspecialchars(ucfirst($row['booking_status'])) ?>
+</p>
+
+<?php if ($row['booking_status'] === 'approved') { ?>
+
+<p>
+    <strong>Payment Status:</strong>
+
+    <?= htmlspecialchars(
+        ucfirst($row['payment_status'] ?? 'pending')
+    ) ?>
+</p>
+
+<?php } ?>
+
+        <p>
 
             <strong>Previous Damages:</strong>
 
@@ -463,29 +497,124 @@ if ($requests->num_rows > 0) {
 
         <div class="buttons">
 
+<?php
+
+// =======================================
+// Pending Booking
+// =======================================
+
+if ($row['booking_status'] === 'pending') {
+
+?>
+
+    <a
+        href="OwnerApproveBooking.php?booking_id=<?= (int)$row['booking_id'] ?>"
+        class="approve-btn">
+        Approve
+    </a>
+
+    <a
+        href="OwnerRejectBooking.php?booking_id=<?= (int)$row['booking_id'] ?>"
+        class="reject-btn"
+        onclick="return confirm('Are you sure you want to reject this booking request?');">
+        Reject
+    </a>
+
+<?php
+
+}
+
+// =======================================
+// Approved Booking
+// =======================================
+
+elseif ($row['booking_status'] === 'approved') {
+
+    $current_time = time();
+    $pickup_time = strtotime($row['pickup_datetime']);
+    $return_time = strtotime($row['return_datetime']);
+
+    // ===================================
+    // Payment Not Confirmed
+    // ===================================
+
+    if ($row['payment_status'] !== 'paid') {
+
+        if ($current_time >= $pickup_time) {
+
+?>
+
             <a
+                href="OwnerConfirmPayment.php?booking_id=<?= (int)$row['booking_id'] ?>"
+                class="approve-btn"
+                onclick="return confirm('Confirm that payment has been received?');">
+                Confirm Payment
+            </a>
 
-            href="OwnerApproveBooking.php?booking_id=<?= $row['booking_id'] ?>"
+<?php
 
-            class="approve-btn">
+        }
 
-                Approve
+        else {
 
+?>
+
+            <span class="status-message">
+                Waiting for pickup date
+            </span>
+
+<?php
+
+        }
+
+    }
+
+    // ===================================
+    // Payment Confirmed
+    // ===================================
+
+    else {
+
+        if ($current_time >= $return_time) {
+
+?>
+
+            <a
+                href="OwnerCompleteBooking.php?booking_id=<?= (int)$row['booking_id'] ?>"
+                class="approve-btn"
+                onclick="return confirm('Complete this booking with no damages?');">
+                Complete Booking
             </a>
 
             <a
-
-            href="OwnerRejectBooking.php?booking_id=<?= $row['booking_id'] ?>"
-
-            class="reject-btn"
-
-            onclick="return confirm('Are you sure you want to reject this booking request?');">
-
-                Reject
-
+                href="OwnerReportDamages.php?booking_id=<?= (int)$row['booking_id'] ?>"
+                class="reject-btn">
+                Report Damages
             </a>
 
-        </div>
+<?php
+
+        }
+
+        else {
+
+?>
+
+            <span class="status-message">
+                Payment Confirmed - Waiting for return date
+            </span>
+
+<?php
+
+        }
+
+    }
+
+}
+
+?>
+
+</div>
 
     </div>
 
