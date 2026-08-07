@@ -258,7 +258,37 @@ a{
 
 }
 
+/* .profile-btn{
 
+    display:block;
+
+    width:100%;
+
+    text-align:center;
+
+    text-decoration:none;
+
+    background:#198754;
+
+    color:white;
+
+    padding:14px;
+
+    border-radius:8px;
+
+    margin-bottom:15px;
+
+    font-weight:bold;
+
+    transition:.3s;
+
+} */
+
+.profile-btn:hover{
+
+    background:#157347;
+
+}
 
 </style>
 
@@ -482,6 +512,14 @@ Manage My Cars
 <a href="OwnerBookingRequests.php">
 
 Booking Requests
+
+</a>
+
+<a
+href="AddCar.php"
+class="profile-btn">
+
+    + Add New Car
 
 </a>
 
