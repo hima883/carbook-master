@@ -79,51 +79,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // =======================================
 
 
-$check_booking = "
+// $check_booking = "
 
-SELECT id
+// SELECT id
 
-FROM bookings
+// FROM bookings
 
-WHERE
+// WHERE
 
-car_id = ?
+// car_id = ?
 
-AND
+// AND
 
-booking_status = 'approved'
+// booking_status = 'approved'
 
-AND
+// AND
 
-(
+// (
 
-    pickup_datetime <= ?
+//     pickup_datetime <= ?
 
-    AND
+//     AND
 
-    return_datetime >= ?
+//     return_datetime >= ?
 
-)
+// )
 
-";
-
-
-$existing_booking = $conn->execute_query($check_booking,[
-
-    $car_id,
-
-    $return_datetime,
-
-    $pickup_datetime
-
-]);
+// ";
 
 
+// $existing_booking = $conn->execute_query($check_booking,[
 
-if($existing_booking->num_rows > 0){
+//     $car_id,
 
-    die("This car is already booked during the selected period.");
-}
+//     $return_datetime,
+
+//     $pickup_datetime
+
+// ]);
+
+
+
+// if($existing_booking->num_rows > 0){
+
+//     die("This car is already booked during the selected period.");
+// }
 
 
 // =======================================
