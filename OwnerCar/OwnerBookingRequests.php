@@ -531,52 +531,55 @@ else{
 
 // end test  - > don't forget to remove this after testing
 
-    if($row['payment_status'] == 'pending'){
+   if($row['payment_status'] == 'pending'){
 
-        if(strtotime(date("Y-m-d H:i:s")) >= strtotime($row['pickup_datetime'])){
-
-?>
-
-            <a
-
-            href="OwnerConfirmPayment.php?booking_id=<?= $row['booking_id'] ?>"
-
-            class="approve-btn">
-
-                Confirm Payment
-
-            </a>
-
-<?php
-
-        }
-
-        else{
+    if(strtotime(date("Y-m-d H:i:s")) >= strtotime($row['pickup_datetime'])){
 
 ?>
 
-            <span>
+        <a
 
-                Waiting For Pickup Date
+        href="OwnerConfirmPayment.php?booking_id=<?= $row['booking_id'] ?>"
 
-            </span>
+        class="approve-btn">
+
+            Confirm Payment
+
+        </a>
 
 <?php
-
-        }
 
     }
 
- else{
+    else{
+
+?>
+
+        <span>
+
+            Waiting For Pickup Date
+
+        </span>
+
+<?php
+
+    }
+
+}
+
+else{
 
     if(strtotime(date("Y-m-d H:i:s")) >= strtotime($row['return_datetime'])){
 
 ?>
 
         <a
-        href="OwnerCompleteBooking.php?booking_id=<?= $row['booking_id'] ?>"
+
+        href="OwnerReportDamages.php?booking_id=<?= $row['booking_id'] ?>"
+
         class="approve-btn"
-        onclick="return confirm('Are you sure you want to complete this booking?');">
+
+        onclick="return confirm('Complete this booking and report any damages?');">
 
             Complete Booking
 
