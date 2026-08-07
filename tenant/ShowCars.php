@@ -555,19 +555,16 @@ content="width=device-width, initial-scale=1.0">
         <div class="cars-content">
     
             <!-- حط هنا الكود الحالى بالكامل اللى بيعرض العربيات -->
-                                        
-            <div class="cars">
-        
-
+              
                 <h3>
                 
                 <?= $total_cars ?> Cars Found
                 
                 </h3>
-
+            <div class="cars">
+        
                 <?php
-                
-                
+                             
                 if ($cars->num_rows > 0) {
                 
                     while ($row = $cars->fetch_assoc()) {
