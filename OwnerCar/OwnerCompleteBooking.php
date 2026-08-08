@@ -2,129 +2,155 @@
 
 // date_default_timezone_set('Africa/Cairo');
 
-require_once "../mysql/db_connect.php";
+// require_once "../mysql/db_connect.php";
 
-$owner_id = 1; // Replace with $_SESSION['owner_id']
+// session_start() ; 
 
-if(!isset($_GET['booking_id'])){
+// $owner_id = $_SESSION['owner_id']; 
 
-    die("Booking ID is missing.");
+// if(!isset($_GET['booking_id'])){
 
-}
+//     die("Booking ID is missing.");
 
-$booking_id = (int)$_GET['booking_id'];
+// }
 
-$get_booking = "
+// $booking_id = (int)$_GET['booking_id'];
 
-SELECT
+// $get_booking = "
 
-bookings.id AS booking_id,
-bookings.booking_status,
-bookings.return_datetime,
+// SELECT
 
-cars.id AS car_id,
-cars.owner_id,
+// bookings.id AS booking_id,
+// bookings.booking_status,
+// bookings.return_datetime,
 
-payments.payment_status
+// cars.id AS car_id,
+// cars.owner_id,
 
-FROM bookings
+// payments.payment_status
 
-INNER JOIN cars
+// FROM bookings
 
-ON bookings.car_id = cars.id
+// INNER JOIN cars
 
-INNER JOIN payments
+// ON bookings.car_id = cars.id
 
-ON bookings.id = payments.booking_id
+// INNER JOIN payments
 
-WHERE bookings.id = '$booking_id'
+// ON bookings.id = payments.booking_id
 
-LIMIT 1
+// WHERE bookings.id = '$booking_id'
 
-";
+// LIMIT 1
 
-$booking = $conn->execute_query($get_booking);
+// ";
 
-if($booking->num_rows == 0){
+// $booking = $conn->execute_query($get_booking);
 
-    die("Booking not found.");
+// if($booking->num_rows == 0){
 
-}
+//     die("Booking not found.");
 
-$row = $booking->fetch_assoc();
+// }
 
-if($row['owner_id'] != $owner_id){
+// $row = $booking->fetch_assoc();
 
-    die("Access denied.");
+// if($row['owner_id'] != $owner_id){
 
-}
+//     die("Access denied.");
 
-if($row['booking_status'] != "approved"){
+// }
 
-    die("This booking cannot be completed.");
+// if($row['booking_status'] != "approved"){
 
-}
+//     die("This booking cannot be completed.");
 
-if($row['payment_status'] != "paid"){
+// }
 
-    die("Payment has not been confirmed yet.");
+// if($row['payment_status'] != "paid"){
 
-}
+//     die("Payment has not been confirmed yet.");
 
-if(strtotime(date("Y-m-d H:i:s")) < strtotime($row['return_datetime'])){
+// }
 
-    die("The return date has not arrived yet.");
+// if(strtotime(date("Y-m-d H:i:s")) < strtotime($row['return_datetime'])){
 
-}
+//     die("The return date has not arrived yet.");
 
-
-$conn->begin_transaction();
-
-try{
-
-    $complete_booking = "
-
-    UPDATE bookings
-
-    SET booking_status = 'completed'
-
-    WHERE id = '$booking_id'
-
-    ";
-
-    $conn->execute_query($complete_booking);
+// }
 
 
-    $car_id = $row['car_id'];
+// $conn->begin_transaction();
 
-    $update_car = "
+// try{
 
-    UPDATE cars
+//     $complete_booking = "
 
-    SET status = 'available'
+//     UPDATE bookings
 
-    WHERE id = '$car_id'
+//     SET booking_status = 'completed'
 
-    ";
+//     WHERE id = '$booking_id'
 
-    $conn->execute_query($update_car);
+//     ";
 
-
-    $conn->commit();
-
-}
-
-catch(Exception $e){
-
-    $conn->rollback();
-
-    die("Failed to complete booking.");
-
-}
+//     $conn->execute_query($complete_booking);
 
 
-header("Location: OwnerBookingRequests.php");
+//     $car_id = $row['car_id'];
 
-exit();
+//     $update_car = "
+
+//     UPDATE cars
+
+//     SET status = 'available'
+
+//     WHERE id = '$car_id'
+
+//     ";
+
+//     $conn->execute_query($update_car);
+
+
+//     $conn->commit();
+
+// }
+
+// catch(Exception $e){
+
+//     $conn->rollback();
+
+//     die("Failed to complete booking.");
+
+// }
+
+
+// header("Location: OwnerBookingRequests.php");
+
+// exit();
 
 ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

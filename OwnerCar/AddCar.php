@@ -136,9 +136,10 @@
 
         <div class="row">
             <div>
-                <label>Model Year *</label>
-                <input type="number"
-                       min = "1900" 
+                 <label>Model Year *</label>    
+                <input                     
+                       type="number"
+                       min = 1900
                        name="car_model_year" 
                        placeholder="2024"
                        required>
