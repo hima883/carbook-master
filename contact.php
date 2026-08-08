@@ -62,7 +62,7 @@
 			          	<div class="icon mr-3">
 			          		<span class="icon-mobile-phone"></span>
 			          	</div>
-			            <p><span>Phone:</span> <a href="tel://1234567920">+ 1235 2355 98</a></p>
+			            <p><span>Phone:</span> <a href="tel://1234567920">01020732176</a></p>
 			          </div>
 		          </div>
 		          <div class="col-md-12">
@@ -70,13 +70,13 @@
 			          	<div class="icon mr-3">
 			          		<span class="icon-envelope-o"></span>
 			          	</div>
-			            <p><span>Email:</span> <a href="mailto:info@yoursite.com">info@yoursite.com</a></p>
+			            <p><span>Email:</span> <a href="mailto:info@yoursite.com">amr21122005@gmail.com</a></p>
 			          </div>
 		          </div>
 		        </div>
           </div>
           <div class="col-md-8 block-9 mb-md-5">
-            <form action="#" class="bg-light p-5 contact-form">
+            <!-- <form action="" class="bg-light p-5 contact-form">
               <div class="form-group">
                 <input type="text" class="form-control" placeholder="Your Name">
               </div>
@@ -92,8 +92,29 @@
               <div class="form-group">
                 <input type="submit" value="Send Message" class="btn btn-primary py-3 px-5">
               </div>
+            </form> -->
+
+            <form action="mailto:amr21122005@gmail.com" method="post" enctype="text/plain">
+              <div>
+                <label for="name">Name : </label>
+              <input type="text" name="name" placeholder="اسمك" id="name" required>
+              <br> <br>
+              </div>
+             <div>
+              <label for="email">Email : </label>
+             <input type="email" name="email" placeholder="بريدك" id="email" required>
+              <br> <br>
+             </div>
+            <div>
+            <label for="message">Message : </label>
+            <textarea name="message" placeholder="رسالتك" id="message" required></textarea>
+             <br> <br>
+            </div>
+            <div>
+              <input type="submit" value="send message" style="background-color: blue; color:white">
+            </div>
             </form>
-          
+  
           </div>
         </div>
         <div class="row justify-content-center">
@@ -187,9 +208,9 @@
   <script src="js/bootstrap-datepicker.js"></script>
   <script src="js/jquery.timepicker.min.js"></script>
   <script src="js/scrollax.min.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
-  <script src="js/google-map.js"></script>
-  <script src="js/main.js"></script>
+  <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script> -->
+  <!-- <script src="js/google-map.js"></script> -->
+  <script src="js/main.js"></script> 
     
   </body>
 </html>
