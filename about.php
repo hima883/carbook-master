@@ -54,9 +54,13 @@
 	          	<span class="subheading">About us</span>
 	            <h2 class="mb-4">Welcome to Carbook</h2>
 
-	            <p>A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.</p>
-	            <p>On her way she met a copy. The copy warned the Little Blind Text, that where it came from it would have been rewritten a thousand times and everything that was left from its origin would be the word "and" and the Little Blind Text should turn around and return to its own, safe country. A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.</p>
-	            <p><a href="#" class="btn btn-primary py-3 px-4">Search Vehicle</a></p>
+	            <!-- <p>A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.</p> -->
+              <!-- <p>On her way she met a copy. The copy warned the Little Blind Text, that where it came from it would have been rewritten a thousand times and everything that was left from its origin would be the word "and" and the Little Blind Text should turn around and return to its own, safe country. A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.</p> -->
+	                 <p> Our Website is a link between the Car Owner and the tenants each owner put his car for rent and each tenant want to rent his car will sent a booking request to the owner if the owner accepts then the tenant can communicate with the owner rent it</p>
+                   <p> The Tenant car search and filter cars by multipule filters like pick-up date and return date  , price , make , model , year and other things</p>
+        
+
+	            <p><a href="tenant/ShowCars.php" class="btn btn-primary py-3 px-4">Search Vehicle</a></p>
 	          </div>
 					</div>
 				</div>
@@ -69,7 +73,7 @@
 				<div class="row justify-content-end">
 					<div class="col-md-6 heading-section heading-section-white ftco-animate">
             <h2 class="mb-3">Do You Want To Earn With Us? So Don't Be Late.</h2>
-            <a href="#" class="btn btn-primary btn-lg">Become A Driver</a>
+            <a href="OwnerCar/auth/OwnerRegister.php" class="btn btn-primary btn-lg">Become A Driver</a>
           </div>
 				</div>
 			</div>
