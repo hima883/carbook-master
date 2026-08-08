@@ -4,16 +4,15 @@ session_start();
 
 require_once "../../mysql/db_connect.php";
 
-if(isset($_SESSION['tenant_license'])){
+if (isset($_SESSION['tenant_license'])) {
 
-    header("Location: ../index.php");
+    header("Location: ../../index.php");
     exit();
-
 }
 
 $error = "";
 
-if($_SERVER["REQUEST_METHOD"] == "POST"){
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $driving_license = trim($_POST['driving_license']);
     $name = trim($_POST['name']);
@@ -22,7 +21,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     $confirm_password = trim($_POST['confirm_password']);
     $phone = trim($_POST['phone']);
 
-    if(
+    if (
 
         empty($driving_license) ||
         empty($name) ||
@@ -31,25 +30,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         empty($confirm_password) ||
         empty($phone)
 
-    ){
+    ) {
 
         $error = "Please fill in all fields.";
-
-    }
-
-    elseif(!filter_var($email,FILTER_VALIDATE_EMAIL)){
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
         $error = "Invalid email address.";
-
-    }
-
-    elseif($password != $confirm_password){
+    } elseif ($password != $confirm_password) {
 
         $error = "Passwords do not match.";
-
-    }
-
-    else{
+    } else {
 
         $check_email = "
 
@@ -63,15 +53,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
         ";
 
-        $tenant = $conn->execute_query($check_email,[$email]);
+        $tenant = $conn->execute_query($check_email, [$email]);
 
-        if($tenant->num_rows > 0){
+        if ($tenant->num_rows > 0) {
 
             $error = "This email is already registered.";
-
-        }
-
-        else{
+        } else {
 
             $check_license = "
 
@@ -85,19 +72,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
             ";
 
-            $license = $conn->execute_query($check_license,[
+            $license = $conn->execute_query($check_license, [
 
                 $driving_license
 
             ]);
 
-            if($license->num_rows > 0){
+            if ($license->num_rows > 0) {
 
                 $error = "Driving license already exists.";
-
-            }
-
-            else{
+            } else {
 
                 $insert = "
 
@@ -122,12 +106,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     ?,
                     ?,
                     ?
-
                 )
 
                 ";
 
-                $conn->execute_query($insert,[
+                $conn->execute_query($insert, [
 
                     $driving_license,
                     $name,
@@ -149,7 +132,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
                 ";
 
-                $tenant = $conn->execute_query($get_tenant,[
+                $tenant = $conn->execute_query($get_tenant, [
 
                     $driving_license
 
@@ -162,16 +145,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 $_SESSION['tenant_email'] = $row['email'];
                 $_SESSION['tenant_phone'] = $row['phone'];
 
-                header("Location: ../index.php");
+                header("Location: ../../index.php");
 
                 exit();
-
             }
-
         }
-
     }
-
 }
 
 ?>
@@ -182,254 +161,252 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tenant Register</title>
+    <title>Tenant Register</title>
 
-<style>
+    <style>
+        * {
 
-*{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
 
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+        }
 
-}
+        body {
 
-body{
+            background: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
 
-    background:#f4f6f9;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
+        }
 
-}
+        .register-box {
 
-.register-box{
+            width: 450px;
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .15);
 
-    width:450px;
-    background:white;
-    padding:35px;
-    border-radius:12px;
-    box-shadow:0 5px 15px rgba(0,0,0,.15);
+        }
 
-}
+        .register-box h2 {
 
-.register-box h2{
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
 
-    text-align:center;
-    margin-bottom:25px;
-    color:#333;
+        }
 
-}
+        .error {
 
-.error{
+            background: #ffe5e5;
+            color: #b30000;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
 
-    background:#ffe5e5;
-    color:#b30000;
-    padding:12px;
-    border-radius:8px;
-    margin-bottom:20px;
-    font-weight:bold;
+        }
 
-}
+        label {
 
-label{
+            display: block;
+            margin-bottom: 8px;
+            margin-top: 15px;
+            font-weight: bold;
 
-    display:block;
-    margin-bottom:8px;
-    margin-top:15px;
-    font-weight:bold;
+        }
 
-}
+        input {
 
-input{
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
 
-    width:100%;
-    padding:12px;
-    border:1px solid #ccc;
-    border-radius:8px;
-    outline:none;
+        }
 
-}
+        input:focus {
 
-input:focus{
+            border-color: #0d6efd;
 
-    border-color:#0d6efd;
+        }
 
-}
+        button {
 
-button{
+            width: 100%;
+            margin-top: 25px;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: #0d6efd;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: .3s;
 
-    width:100%;
-    margin-top:25px;
-    padding:14px;
-    border:none;
-    border-radius:8px;
-    background:#0d6efd;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
-    transition:.3s;
+        }
 
-}
+        button:hover {
 
-button:hover{
+            background: #0b5ed7;
 
-    background:#0b5ed7;
+        }
 
-}
+        .login-link {
 
-.login-link{
+            text-align: center;
+            margin-top: 20px;
 
-    text-align:center;
-    margin-top:20px;
+        }
 
-}
+        .login-link a {
 
-.login-link a{
+            color: #0d6efd;
+            text-decoration: none;
+            font-weight: bold;
 
-    color:#0d6efd;
-    text-decoration:none;
-    font-weight:bold;
+        }
 
-}
+        .login-link a:hover {
 
-.login-link a:hover{
+            text-decoration: underline;
 
-    text-decoration:underline;
-
-}
-
-</style>
+        }
+    </style>
 
 </head>
 
 <body>
 
-<div class="register-box">
+    <div class="register-box">
 
-    <h2>
+        <h2>
 
-        Tenant Register
+            Tenant Register
 
-    </h2>
+        </h2>
 
-    <?php
+        <?php
 
-    if(!empty($error)){
+        if (!empty($error)) {
 
-    ?>
+        ?>
 
-        <div class="error">
+            <div class="error">
 
-            <?= $error ?>
+                <?= $error ?>
+
+            </div>
+
+        <?php
+
+        }
+
+        ?>
+
+        <form method="POST">
+
+            <label>
+
+                Driving License
+
+            </label>
+
+            <input
+                type="text"
+                name="driving_license"
+                value="<?= $_POST['driving_license'] ?? '' ?>"
+                required>
+
+            <label>
+
+                Full Name
+
+            </label>
+
+            <input
+                type="text"
+                name="name"
+                value="<?= $_POST['name'] ?? '' ?>"
+                required>
+
+            <label>
+
+                Email
+
+            </label>
+
+            <input
+                type="email"
+                name="email"
+                value="<?= $_POST['email'] ?? '' ?>"
+                required>
+
+            <label>
+
+                Phone Number
+
+            </label>
+
+            <input
+                type="text"
+                name="phone"
+                value="<?= $_POST['phone'] ?? '' ?>"
+                required>
+
+            <label>
+
+                Password
+
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                required>
+
+            <label>
+
+                Confirm Password
+
+            </label>
+
+            <input
+                type="password"
+                name="confirm_password"
+                required>
+
+            <button type="submit">
+
+                Register
+
+            </button>
+
+        </form>
+
+        <div class="login-link">
+
+            Already have an account?
+
+            <a href="TenantLogin.php">
+
+                Login
+
+            </a>
 
         </div>
 
-    <?php
-
-    }
-
-    ?>
-
-    <form method="POST">
-
-        <label>
-
-            Driving License
-
-        </label>
-
-        <input
-        type="text"
-        name="driving_license"
-        value="<?= $_POST['driving_license'] ?? '' ?>"
-        required>
-
-        <label>
-
-            Full Name
-
-        </label>
-
-        <input
-        type="text"
-        name="name"
-        value="<?= $_POST['name'] ?? '' ?>"
-        required>
-
-        <label>
-
-            Email
-
-        </label>
-
-        <input
-        type="email"
-        name="email"
-        value="<?= $_POST['email'] ?? '' ?>"
-        required>
-
-        <label>
-
-            Phone Number
-
-        </label>
-
-        <input
-        type="text"
-        name="phone"
-        value="<?= $_POST['phone'] ?? '' ?>"
-        required>
-
-        <label>
-
-            Password
-
-        </label>
-
-        <input
-        type="password"
-        name="password"
-        required>
-
-        <label>
-
-            Confirm Password
-
-        </label>
-
-        <input
-        type="password"
-        name="confirm_password"
-        required>
-
-        <button type="submit">
-
-            Register
-
-        </button>
-
-    </form>
-
-    <div class="login-link">
-
-        Already have an account?
-
-        <a href="TenantLogin.php">
-
-            Login
-
-        </a>
-
     </div>
-
-</div>
 
 </body>
 

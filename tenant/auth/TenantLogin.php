@@ -6,7 +6,7 @@ require_once "../../mysql/db_connect.php";
 
 if(isset($_SESSION['tenant_license'])){
 
-    header("Location: ../index.php");
+    header("Location: ../../index.php");
     exit();
 
 }
@@ -79,7 +79,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
                 $_SESSION['tenant_phone'] = $row['phone'];
 
-                header("Location: ../index.php");
+                header("Location: ../../index.php");
 
                 exit();
 
