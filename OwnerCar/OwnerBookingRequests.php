@@ -536,7 +536,10 @@ else{
 
 // end test  - > don't forget to remove this after testing
 
-   if($row['payment_status'] == 'pending'){
+   
+
+
+if($row['payment_status'] == 'pending'){
 
     if(strtotime(date("Y-m-d H:i:s")) >= strtotime($row['pickup_datetime'])){
 
@@ -572,7 +575,7 @@ else{
 
 }
 
-else{
+elseif($row['payment_status'] == 'paid'){
 
     if(strtotime(date("Y-m-d H:i:s")) >= strtotime($row['return_datetime'])){
 
@@ -615,6 +618,20 @@ else{
 <?php
 
     }
+
+}
+
+else{
+
+?>
+
+    <span>
+
+        Payment Status: <?= $row['payment_status'] ?? 'Not Available' ?>
+
+    </span>
+
+<?php
 
 }
 

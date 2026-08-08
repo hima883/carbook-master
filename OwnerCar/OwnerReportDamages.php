@@ -104,7 +104,16 @@ if(strtotime(date("Y-m-d H:i:s")) < strtotime($row['return_datetime'])){
 
 }
 
+// if($_SERVER["REQUEST_METHOD"] == "POST"){
+
+//     $damage = $_POST['damage'];
+
 if($_SERVER["REQUEST_METHOD"] == "POST"){
+
+    if(!isset($_POST['damage']) || !in_array($_POST['damage'], ['0','1'], true)){
+
+        die("Invalid damage selection.");
+    }
 
     $damage = $_POST['damage'];
 

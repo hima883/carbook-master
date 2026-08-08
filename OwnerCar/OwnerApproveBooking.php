@@ -79,6 +79,14 @@ $booking = $result->fetch_assoc();
 
 
 
+// // Check Owner Permission
+
+// if($booking['owner_id'] != $owner_id){
+
+//     die("You are not allowed to approve this booking");
+
+// }
+
 // Check Owner Permission
 
 if($booking['owner_id'] != $owner_id){
@@ -87,6 +95,14 @@ if($booking['owner_id'] != $owner_id){
 
 }
 
+
+// Check Booking Status
+
+if($booking['booking_status'] != 'pending'){
+
+    die("This booking has already been processed.");
+
+}
 
 
 // =======================================
