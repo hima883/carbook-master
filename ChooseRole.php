@@ -1,16 +1,16 @@
 <?php
 session_start();
 
-if(isset($_SESSION['owner_id'])){
+if(isset($_SESSION['tenant_license'])){
 
-    header("Location: OwnerCar/OwnerProfile.php");
+    header("Location: index.php");
     exit();
 
 }
 
-if(isset($_SESSION['tenant_license'])){
+if(isset($_SESSION['owner_id'])){
 
-    header("Location: index.php");
+    header("Location: OwnerCar/OwnerProfile.php");
     exit();
 
 }
