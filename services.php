@@ -58,7 +58,7 @@
             	<div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-route"></span></div>
             	<div class="text w-100">
                 <h3 class="heading mb-2">Wedding Ceremony</h3>
-                <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p>
+                <!-- <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p> -->
               </div>
             </div>
 					</div>
@@ -67,7 +67,7 @@
             	<div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-route"></span></div>
             	<div class="text w-100">
                 <h3 class="heading mb-2">City Transfer</h3>
-                <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p>
+                <!-- <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p> -->
               </div>
             </div>
 					</div>
@@ -76,7 +76,7 @@
             	<div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-route"></span></div>
             	<div class="text w-100">
                 <h3 class="heading mb-2">Airport Transfer</h3>
-                <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p>
+                <!-- <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p> -->
               </div>
             </div>
 					</div>
@@ -85,7 +85,7 @@
             	<div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-route"></span></div>
             	<div class="text w-100">
                 <h3 class="heading mb-2">Whole City Tour</h3>
-                <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p>
+                <!-- <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p> -->
               </div>
             </div>
 					</div>
@@ -99,7 +99,7 @@
 				<div class="row justify-content-end">
 					<div class="col-md-6 heading-section heading-section-white ftco-animate">
             <h2 class="mb-3">Do You Want To Earn With Us? So Don't Be Late.</h2>
-            <a href="#" class="btn btn-primary btn-lg">Become A Driver</a>
+            <a href="OwnerCar/auth/OwnerRegister.php" class="btn btn-primary btn-lg">Become A Driver</a>
           </div>
 				</div>
 			</div>
