@@ -1,12 +1,22 @@
 <?php
-require_once __DIR__ . '/config/auth.php';
-$flash_success = get_flash_message('success');
-$flash_error = get_flash_message('error');
+
+session_start();
+
+if (!isset($_SESSION['tenant_license']) && !isset($_SESSION['owner_id'])) 
+  {
+    header("Location: ChooseRole.php");
+    exit();
+  }
+
+$flash_success = "";
+
+$flash_error = "";
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Carbook - Free Bootstrap 4 Template by Colorlib</title>
+    <title>Carbook</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
@@ -35,23 +45,23 @@ $flash_error = get_flash_message('error');
     
     <?php include __DIR__ . '/includes/navbar.php'; ?>
 
-    <?php if ($flash_success): ?>
+    <!-- <?php /* if ($flash_success): */?>
       <div class="alert alert-success alert-dismissible fade show text-center mb-0" role="alert" style="border-radius:0;">
-        <strong><i class="ion-ios-checkmark-circle"></i></strong> <?php echo htmlspecialchars($flash_success); ?>
+        <strong><i class="ion-ios-checkmark-circle"></i></strong> <?php /* echo htmlspecialchars($flash_success); */ ?>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-    <?php endif; ?>
+    <?php /* endif; */ ?>
 
-    <?php if ($flash_error): ?>
+    <?php /* if ($flash_error): */?>
       <div class="alert alert-danger alert-dismissible fade show text-center mb-0" role="alert" style="border-radius:0;">
-        <strong><i class="ion-ios-close-circle"></i></strong> <?php echo htmlspecialchars($flash_error); ?>
+        <strong><i class="ion-ios-close-circle"></i></strong> <?php /* echo htmlspecialchars($flash_error); */ ?>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-    <?php endif; ?>
+    <?php /* endif; */?> -->
 
     
     <div class="hero-wrap ftco-degree-bg" style="background-image: url('images/bg_1.jpg');" data-stellar-background-ratio="0.5">
@@ -81,37 +91,39 @@ $flash_error = get_flash_message('error');
     		<div class="row no-gutters">
     			<div class="col-md-12	featured-top">
     				<div class="row no-gutters">
-	  					<div class="col-md-4 d-flex align-items-center">
-	  						<form action="#" class="request-form ftco-animate bg-primary">
+	  					<!-- <div class="col-md-4 d-flex align-items-center" > -->
+                <!-- test here the sending dates to showcars -->
+	  						<!-- <form action="tenant/ShowCars.php" class="request-form ftco-animate bg-primary" method="GET" >
 		          		<h2>Make your trip</h2>
-			    				<div class="form-group">
+			    				<!-- <div class="form-group">
 			    					<label for="" class="label">Pick-up location</label>
-			    					<input type="text" class="form-control" placeholder="City, Airport, Station, etc">
+			    					<input type="text" class="form-control" placeholder="City, Airport, Station, etc" >
 			    				</div>
 			    				<div class="form-group">
 			    					<label for="" class="label">Drop-off location</label>
 			    					<input type="text" class="form-control" placeholder="City, Airport, Station, etc">
-			    				</div>
-			    				<div class="d-flex">
+			    				</div> -->
+
+			    				<!-- <div class="d-flex">
 			    					<div class="form-group mr-2">
-			                <label for="" class="label">Pick-up date</label>
-			                <input type="text" class="form-control" id="book_pick_date" placeholder="Date">
+			                <label for="pick-up" class="label">Pick-up date</label>
+			                <input type="datetime-local" class="form-control" id="book_pick_date" placeholder="Date" name="available_from" id="pick-up">
 			              </div>
 			              <div class="form-group ml-2">
-			                <label for="" class="label">Drop-off date</label>
-			                <input type="text" class="form-control" id="book_off_date" placeholder="Date">
+			                <label for="return" class="label">Return date</label>
+			                <input type="datetime-local"  class="form-control"  id="book_off_date" placeholder="Date" name="available_to" id="return">
 			              </div>
-		              </div>
-		              <div class="form-group">
+		              </div> --> 
+		              <!-- <div class="form-group">
 		                <label for="" class="label">Pick-up time</label>
 		                <input type="text" class="form-control" id="time_pick" placeholder="Time">
-		              </div>
+		              </div> 
 			            <div class="form-group">
 			              <input type="submit" value="Rent A Car Now" class="btn btn-secondary py-3 px-4">
 			            </div>
-			    			</form>
-	  					</div>
-	  					<div class="col-md-8 d-flex align-items-center">
+			    			</form>-->
+	  					<!-- </div> -->
+	  					<div class="col-md-8 d-flex align-items-center" style="margin-left: auto; margin-right:auto">
 	  						<div class="services-wrap rounded-right w-100">
 	  							<h3 class="heading-section mb-4">Better Way to Rent Your Perfect Cars</h3>
 	  							<div class="row d-flex mb-4">
@@ -119,7 +131,7 @@ $flash_error = get_flash_message('error');
 					            <div class="services w-100 text-center">
 				              	<div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-route"></span></div>
 				              	<div class="text w-100">
-					                <h3 class="heading mb-2">Choose Your Pickup Location</h3>
+					                <h3 class="heading mb-2">Choose Your Pickup and Return Date</h3>
 				                </div>
 					            </div>      
 					          </div>
@@ -140,7 +152,7 @@ $flash_error = get_flash_message('error');
 					            </div>      
 					          </div>
 					        </div>
-					        <p><a href="#" class="btn btn-primary py-3 px-4">Reserve Your Perfect Car</a></p>
+					        <p><a href="tenant/ShowCars.php" class="btn btn-primary py-3 px-4">Rent Your Perfect Car</a></p>
 	  						</div>
 	  					</div>
 	  				</div>
@@ -157,7 +169,10 @@ $flash_error = get_flash_message('error');
             <h2 class="mb-2">Feeatured Vehicles</h2>
           </div>
         </div>
-    		<div class="row">
+        
+
+
+    		 <div class="row">
     			<div class="col-md-12">
     				<div class="carousel-car owl-carousel">
     					<div class="item">
@@ -165,12 +180,12 @@ $flash_error = get_flash_message('error');
 		    					<div class="img rounded d-flex align-items-end" style="background-image: url(images/car-1.jpg);">
 		    					</div>
 		    					<div class="text">
-		    						<h2 class="mb-0"><a href="#">Mercedes Grand Sedan</a></h2>
+		    						<h2 class="mb-0"><a href="tenant/ShowCars.php">Mercedes Grand Sedan</a></h2>
 		    						<div class="d-flex mb-3">
 			    						<span class="cat">Cheverolet</span>
 			    						<p class="price ml-auto">$500 <span>/day</span></p>
 		    						</div>
-		    						<p class="d-flex mb-0 d-block"><a href="#" class="btn btn-primary py-2 mr-1">Book now</a> <a href="#" class="btn btn-secondary py-2 ml-1">Details</a></p>
+		    						<p class="d-flex mb-0 d-block"><a href="tenant/ShowCars.php" class="btn btn-primary py-2 mr-1">Book now</a> <a href="#" class="btn btn-secondary py-2 ml-1">Details</a></p>
 		    					</div>
 		    				</div>
     					</div>
@@ -179,12 +194,12 @@ $flash_error = get_flash_message('error');
 		    					<div class="img rounded d-flex align-items-end" style="background-image: url(images/car-2.jpg);">
 		    					</div>
 		    					<div class="text">
-		    						<h2 class="mb-0"><a href="#">Mercedes Grand Sedan</a></h2>
+		    						<h2 class="mb-0"><a href="tenant/ShowCars.php">Mercedes Grand Sedan</a></h2>
 		    						<div class="d-flex mb-3">
 			    						<span class="cat">Cheverolet</span>
 			    						<p class="price ml-auto">$500 <span>/day</span></p>
 		    						</div>
-		    						<p class="d-flex mb-0 d-block"><a href="#" class="btn btn-primary py-2 mr-1">Book now</a> <a href="#" class="btn btn-secondary py-2 ml-1">Details</a></p>
+		    						<p class="d-flex mb-0 d-block"><a href="tenant/ShowCars.php" class="btn btn-primary py-2 mr-1">Book now</a> <a href="tenant/ShowCars.php" class="btn btn-secondary py-2 ml-1">Details</a></p>
 		    					</div>
 		    				</div>
     					</div>
@@ -193,12 +208,12 @@ $flash_error = get_flash_message('error');
 		    					<div class="img rounded d-flex align-items-end" style="background-image: url(images/car-3.jpg);">
 		    					</div>
 		    					<div class="text">
-		    						<h2 class="mb-0"><a href="#">Mercedes Grand Sedan</a></h2>
+		    						<h2 class="mb-0"><a href="tenant/ShowCars.php">Mercedes Grand Sedan</a></h2>
 		    						<div class="d-flex mb-3">
 			    						<span class="cat">Cheverolet</span>
 			    						<p class="price ml-auto">$500 <span>/day</span></p>
 		    						</div>
-		    						<p class="d-flex mb-0 d-block"><a href="#" class="btn btn-primary py-2 mr-1">Book now</a> <a href="#" class="btn btn-secondary py-2 ml-1">Details</a></p>
+		    						<p class="d-flex mb-0 d-block"><a href="tenant/ShowCars.php" class="btn btn-primary py-2 mr-1">Book now</a> <a href="tenant/ShowCars.php" class="btn btn-secondary py-2 ml-1">Details</a></p>
 		    					</div>
 		    				</div>
     					</div>
@@ -207,18 +222,18 @@ $flash_error = get_flash_message('error');
 		    					<div class="img rounded d-flex align-items-end" style="background-image: url(images/car-4.jpg);">
 		    					</div>
 		    					<div class="text">
-		    						<h2 class="mb-0"><a href="#">Mercedes Grand Sedan</a></h2>
+		    						<h2 class="mb-0"><a href="tenant/ShowCars.php">Mercedes Grand Sedan</a></h2>
 		    						<div class="d-flex mb-3">
 			    						<span class="cat">Cheverolet</span>
 			    						<p class="price ml-auto">$500 <span>/day</span></p>
 		    						</div>
-		    						<p class="d-flex mb-0 d-block"><a href="#" class="btn btn-primary py-2 mr-1">Book now</a> <a href="#" class="btn btn-secondary py-2 ml-1">Details</a></p>
+		    						<p class="d-flex mb-0 d-block"><a href="tenant/ShowCars.php" class="btn btn-primary py-2 mr-1">Book now</a> <a href="#" class="btn btn-secondary py-2 ml-1">Details</a></p>
 		    					</div>
 		    				</div>
     					</div>
     				</div>
     			</div>
-    		</div>
+    		</div> 
     	</div>
     </section>
 
@@ -231,10 +246,9 @@ $flash_error = get_flash_message('error');
 	          <div class="heading-section heading-section-white pl-md-5">
 	          	<span class="subheading">About us</span>
 	            <h2 class="mb-4">Welcome to Carbook</h2>
-
-	            <p>A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.</p>
-	            <p>On her way she met a copy. The copy warned the Little Blind Text, that where it came from it would have been rewritten a thousand times and everything that was left from its origin would be the word "and" and the Little Blind Text should turn around and return to its own, safe country. A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.</p>
-	            <p><a href="#" class="btn btn-primary py-3 px-4">Search Vehicle</a></p>
+                   <p> Our Website is a link between the Car Owner and the tenants each owner put his car for rent and each tenant want to rent his car will sent a booking request to the owner if the owner accepts then the tenant can communicate with the owner rent it</p>
+                   <p> The Tenant car search and filter cars by multipule filters like pick-up date and return date  , price , make , model , year and other things</p>
+              <p><a href="#" class="btn btn-primary py-3 px-4">Search Vehicle</a></p>
 	          </div>
 					</div>
 				</div>
@@ -255,7 +269,7 @@ $flash_error = get_flash_message('error');
             	<div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-wedding-car"></span></div>
             	<div class="text w-100">
                 <h3 class="heading mb-2">Wedding Ceremony</h3>
-                <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p>
+                <!-- <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p> -->
               </div>
             </div>
 					</div>
@@ -264,7 +278,7 @@ $flash_error = get_flash_message('error');
             	<div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-transportation"></span></div>
             	<div class="text w-100">
                 <h3 class="heading mb-2">City Transfer</h3>
-                <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p>
+                <!-- <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p> -->
               </div>
             </div>
 					</div>
@@ -273,7 +287,7 @@ $flash_error = get_flash_message('error');
             	<div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-car"></span></div>
             	<div class="text w-100">
                 <h3 class="heading mb-2">Airport Transfer</h3>
-                <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p>
+                <!-- <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p> -->
               </div>
             </div>
 					</div>
@@ -282,7 +296,7 @@ $flash_error = get_flash_message('error');
             	<div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-transportation"></span></div>
             	<div class="text w-100">
                 <h3 class="heading mb-2">Whole City Tour</h3>
-                <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p>
+                <!-- <p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p> -->
               </div>
             </div>
 					</div>
@@ -296,7 +310,7 @@ $flash_error = get_flash_message('error');
 				<div class="row justify-content-end">
 					<div class="col-md-6 heading-section heading-section-white ftco-animate">
             <h2 class="mb-3">Do You Want To Earn With Us? So Don't Be Late.</h2>
-            <a href="#" class="btn btn-primary btn-lg">Become A Driver</a>
+            <a href="OwnerCar/auth/OwnerRegister.php" class="btn btn-primary btn-lg">Become A Driver</a>
           </div>
 				</div>
 			</div>
@@ -375,63 +389,63 @@ $flash_error = get_flash_message('error');
       </div>
     </section>
 
-    <section class="ftco-section">
-      <div class="container">
-        <div class="row justify-content-center mb-5">
-          <div class="col-md-7 heading-section text-center ftco-animate">
-          	<span class="subheading">Blog</span>
-            <h2>Recent Blog</h2>
-          </div>
-        </div>
-        <div class="row d-flex">
-          <div class="col-md-4 d-flex ftco-animate">
-          	<div class="blog-entry justify-content-end">
-              <a href="blog-single.php" class="block-20" style="background-image: url('images/image_1.jpg');">
-              </a>
-              <div class="text pt-4">
-              	<div class="meta mb-3">
-                  <div><a href="#">Oct. 29, 2019</a></div>
-                  <div><a href="#">Admin</a></div>
-                  <div><a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a></div>
-                </div>
-                <h3 class="heading mt-2"><a href="#">Why Lead Generation is Key for Business Growth</a></h3>
-                <p><a href="#" class="btn btn-primary">Read more</a></p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 d-flex ftco-animate">
-          	<div class="blog-entry justify-content-end">
-              <a href="blog-single.php" class="block-20" style="background-image: url('images/image_2.jpg');">
-              </a>
-              <div class="text pt-4">
-              	<div class="meta mb-3">
-                  <div><a href="#">Oct. 29, 2019</a></div>
-                  <div><a href="#">Admin</a></div>
-                  <div><a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a></div>
-                </div>
-                <h3 class="heading mt-2"><a href="#">Why Lead Generation is Key for Business Growth</a></h3>
-                <p><a href="#" class="btn btn-primary">Read more</a></p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 d-flex ftco-animate">
-          	<div class="blog-entry">
-              <a href="blog-single.php" class="block-20" style="background-image: url('images/image_3.jpg');">
-              </a>
-              <div class="text pt-4">
-              	<div class="meta mb-3">
-                  <div><a href="#">Oct. 29, 2019</a></div>
-                  <div><a href="#">Admin</a></div>
-                  <div><a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a></div>
-                </div>
-                <h3 class="heading mt-2"><a href="#">Why Lead Generation is Key for Business Growth</a></h3>
-                <p><a href="#" class="btn btn-primary">Read more</a></p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>	
+    <!-- <section class="ftco-section"> -->
+      <!-- <div class="container"> -->
+        <!-- <div class="row justify-content-center mb-5"> -->
+          <!-- <div class="col-md-7 heading-section text-center ftco-animate"> -->
+          	<!-- <span class="subheading">Blog</span> -->
+            <!-- <h2>Recent Blog</h2> -->
+          <!-- </div> -->
+        <!-- </div> -->
+        <!-- <div class="row d-flex"> -->
+          <!-- <div class="col-md-4 d-flex ftco-animate"> -->
+          	<!-- <div class="blog-entry justify-content-end"> -->
+              <!-- <a href="blog-single.php" class="block-20" style="background-image: url('images/image_1.jpg');"> -->
+              <!-- </a> -->
+              <!-- <div class="text pt-4"> -->
+              	<!-- <div class="meta mb-3"> -->
+                  <!-- <div><a href="#">Oct. 29, 2019</a></div> -->
+                  <!-- <div><a href="#">Admin</a></div> -->
+                  <!-- <div><a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a></div> -->
+                <!-- </div> -->
+                <!-- <h3 class="heading mt-2"><a href="#">Why Lead Generation is Key for Business Growth</a></h3> -->
+                <!-- <p><a href="#" class="btn btn-primary">Read more</a></p> -->
+              <!-- </div> -->
+            <!-- </div> -->
+          <!-- </div> -->
+          <!-- <div class="col-md-4 d-flex ftco-animate"> -->
+          	<!-- <div class="blog-entry justify-content-end"> -->
+              <!-- <a href="blog-single.php" class="block-20" style="background-image: url('images/image_2.jpg');"> -->
+              <!-- </a> -->
+              <!-- <div class="text pt-4"> -->
+              	<!-- <div class="meta mb-3"> -->
+                  <!-- <div><a href="#">Oct. 29, 2019</a></div> -->
+                  <!-- <div><a href="#">Admin</a></div> -->
+                  <!-- <div><a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a></div> -->
+                <!-- </div> -->
+                <!-- <h3 class="heading mt-2"><a href="#">Why Lead Generation is Key for Business Growth</a></h3> -->
+                <!-- <p><a href="#" class="btn btn-primary">Read more</a></p> -->
+              <!-- </div> -->
+            <!-- </div> -->
+          <!-- </div> -->
+          <!-- <div class="col-md-4 d-flex ftco-animate"> -->
+          	<!-- <div class="blog-entry"> -->
+              <!-- <a href="blog-single.php" class="block-20" style="background-image: url('images/image_3.jpg');"> -->
+              <!-- </a> -->
+              <!-- <div class="text pt-4"> -->
+              	<!-- <div class="meta mb-3"> -->
+                  <!-- <div><a href="#">Oct. 29, 2019</a></div> -->
+                  <!-- <div><a href="#">Admin</a></div> -->
+                  <!-- <div><a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a></div> -->
+                <!-- </div> -->
+                <!-- <h3 class="heading mt-2"><a href="#">Why Lead Generation is Key for Business Growth</a></h3> -->
+                <!-- <p><a href="#" class="btn btn-primary">Read more</a></p> -->
+              <!-- </div> -->
+            <!-- </div> -->
+          <!-- </div> -->
+        <!-- </div> -->
+      <!-- </div> -->
+    <!-- </section>	 -->
 
     <section class="ftco-counter ftco-section img bg-light" id="section-counter">
 			<div class="overlay"></div>
