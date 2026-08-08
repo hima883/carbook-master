@@ -119,22 +119,17 @@ $target = "../images/CarOwner/" . basename($imageName);
 
 
 // check if the car already exists in the database for the same owner
-
 $stmt = "
 
 SELECT *
 
 FROM cars
 
-WHERE owner_id = ?
-
-AND plate_number = ?
+WHERE plate_number = ?
 
 ";
 
 $check = $conn->execute_query($stmt,[
-
-    $owner_id,
 
     $_POST['car_plate_number']
 
@@ -143,7 +138,7 @@ $check = $conn->execute_query($stmt,[
 
 if($check->num_rows > 0){
 
-    die("Car with this plate number already exists for your account.");
+    die("Car with this plate number already exists.");
 
 }
 
