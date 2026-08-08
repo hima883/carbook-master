@@ -27,7 +27,6 @@ $get_bookings = "
 
 SELECT
 
-
 bookings.id AS booking_id,
 
 bookings.pickup_datetime,
@@ -35,7 +34,6 @@ bookings.pickup_datetime,
 bookings.return_datetime,
 
 bookings.booking_status,
-
 
 cars.make,
 
@@ -52,33 +50,27 @@ owners.name AS owner_name,
 
 owners.phone AS owner_phone,
 
-
 payments.payment_status,
 
 payments.amount
 
-
 FROM bookings
-
 
 INNER JOIN cars
 
 ON bookings.car_id = cars.id
 
-
 INNER JOIN owners
 
 ON cars.owner_id = owners.id
-
 
 LEFT JOIN payments
 
 ON bookings.id = payments.booking_id
 
-
-
 WHERE bookings.tenant_license = ?
 
+AND bookings.booking_status IN ('pending','approved')
 
 ORDER BY bookings.id DESC
 

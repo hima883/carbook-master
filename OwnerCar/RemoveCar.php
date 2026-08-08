@@ -57,13 +57,56 @@ $carData = $car->fetch_assoc();
 
 
 
+// // =======================================
+// // التأكد إن العربية ليست محجوزة
+// // =======================================
+
+// $bookingQuery = "SELECT *
+//                  FROM bookings
+//                  WHERE car_id = ?";
+
+
+// $booking = $conn->execute_query($bookingQuery, [
+
+//     $car_id
+
+// ]);
+
+
+// if ($booking->num_rows > 0) {
+
+//     echo "
+
+//     <script>
+
+//         alert('You cannot delete this car because it has bookings.');
+
+//         window.location='ShowOwnerCars.php';
+
+//     </script>
+
+//     ";
+
+//     exit();
+
+// }
+
+
 // =======================================
-// التأكد إن العربية ليست محجوزة
+// Check Active Bookings
 // =======================================
 
-$bookingQuery = "SELECT *
-                 FROM bookings
-                 WHERE car_id = ?";
+$bookingQuery = "
+
+SELECT id
+
+FROM bookings
+
+WHERE car_id = ?
+
+AND booking_status IN ('pending','approved')
+
+";
 
 
 $booking = $conn->execute_query($bookingQuery, [
@@ -73,15 +116,19 @@ $booking = $conn->execute_query($bookingQuery, [
 ]);
 
 
-if ($booking->num_rows > 0) {
+// =======================================
+// Cannot Delete Active Booking Car
+// =======================================
+
+if($booking->num_rows > 0){
 
     echo "
 
     <script>
 
-        alert('You cannot delete this car because it has bookings.');
+    alert('You cannot delete this car because it has a pending or approved booking.');
 
-        window.location='ShowOwnerCars.php';
+    window.location='ShowOwnerCars.php';
 
     </script>
 
@@ -91,6 +138,102 @@ if ($booking->num_rows > 0) {
 
 }
 
+
+// =======================================
+// Delete Old Payments + Bookings
+// =======================================
+
+$conn->begin_transaction();
+
+try {
+
+
+    // =======================================
+    // Delete Payments
+    // =======================================
+
+    $deletePayments = "
+
+    DELETE payments
+
+    FROM payments
+
+    INNER JOIN bookings
+
+    ON payments.booking_id = bookings.id
+
+    WHERE bookings.car_id = ?
+
+    AND bookings.booking_status IN ('completed','cancelled')
+
+    ";
+
+
+    $conn->execute_query($deletePayments,[
+
+        $car_id
+
+    ]);
+
+
+    // =======================================
+    // Delete Completed / Cancelled Bookings
+    // =======================================
+
+    $deleteBookings = "
+
+    DELETE FROM bookings
+
+    WHERE car_id = ?
+
+    AND booking_status IN ('completed','cancelled')
+
+    ";
+
+
+    $conn->execute_query($deleteBookings,[
+
+        $car_id
+
+    ]);
+
+
+    // =======================================
+    // Delete Car
+    // =======================================
+
+    $deleteCar = "
+
+    DELETE FROM cars
+
+    WHERE id = ?
+
+    AND owner_id = ?
+
+    ";
+
+
+    $conn->execute_query($deleteCar,[
+
+        $car_id,
+
+        $owner_id
+
+    ]);
+
+
+    $conn->commit();
+
+
+}
+
+catch(Exception $e){
+
+    $conn->rollback();
+
+    die("Car deletion failed.");
+
+}
 
 
 // =======================================

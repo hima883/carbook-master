@@ -361,7 +361,7 @@ if ($requests->num_rows > 0) {
 
 <div class="card">
 
-    <img src="<?= $row['image'] ?>" alt="Car Image">
+    <img src="<?=$row['image'] ?>" alt="Car Image">
 
     <div class="info">
 
